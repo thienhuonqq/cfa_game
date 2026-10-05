@@ -1,0 +1,1171 @@
+<title>Wall Street Quest</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Instrument+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a trading-terminal shell — sticky status line, a city-block grid of districts, panels with hairline borders and square corners. Single dark look by design. */
+:root{
+  color-scheme: dark;
+  --ink:#0A0E13;      /* ground */
+  --deck:#111821;     /* panels */
+  --deck-2:#17202B;   /* raised panels */
+  --wire:#24313F;     /* hairlines */
+  --paper:#DDE4EC;    /* text */
+  --dim:#8494A6;      /* secondary text */
+  --amber:#FFB020;    /* the one accent: terminal amber */
+  --amber-ink:#1A1100;
+  --amber-soft:rgba(255,176,32,.14);
+  --bull:#3FD99A;     /* semantic: correct / gain */
+  --bear:#FF6363;     /* semantic: wrong / loss */
+  --display:"Big Shoulders Display", "Arial Narrow", Impact, sans-serif;
+  --body:"Instrument Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+}
+*{box-sizing:border-box}
+html,body{background:var(--ink);color:var(--paper)}
+body{font-family:var(--body);font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:var(--amber)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.dim{color:var(--dim)}
+.amber{color:var(--amber)}
+.bull{color:var(--bull)}.bear{color:var(--bear)}
+
+/* status bar */
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(10,14,19,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--wire)}
+.bar-in{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
+.brand{font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:.04em;text-transform:uppercase;background:none;border:0;cursor:pointer;padding:0;line-height:1}
+.brand b{color:var(--amber)}
+.stats{display:flex;flex-wrap:wrap;gap:6px 16px;font-family:var(--mono);font-size:12px;color:var(--dim);align-items:center}
+.stats span b{color:var(--paper);font-weight:600}
+.xpbar{width:120px;height:6px;background:var(--wire);display:inline-block;vertical-align:middle;margin-left:6px}
+.xpbar i{display:block;height:100%;background:var(--amber)}
+.nav{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto}
+
+.shell{max-width:1200px;margin:0 auto;padding-inline:16px;padding-block:24px 64px}
+.btn{background:var(--deck-2);border:1px solid var(--wire);padding:7px 12px;cursor:pointer;font-size:13px;font-weight:600;letter-spacing:.01em;border-radius:2px;transition:border-color .15s,background .15s}
+.btn:hover{border-color:var(--dim)}
+.btn.primary{background:var(--amber);color:var(--amber-ink);border-color:var(--amber)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent}
+.btn.on{border-color:var(--amber);color:var(--amber)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.sm{padding:4px 9px;font-size:12px}
+
+h1,h2,h3{font-family:var(--display);text-transform:uppercase;letter-spacing:.02em;line-height:.95;margin:0;text-wrap:balance}
+h1{font-size:clamp(46px,9vw,104px);font-weight:900}
+h2{font-size:clamp(30px,5vw,48px);font-weight:800}
+h3{font-size:22px;font-weight:800}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--amber)}
+p{margin:0}
+.lede{max-width:64ch;color:var(--paper);font-size:17px}
+.narr{font-style:italic;color:var(--dim);max-width:64ch}
+.stack{display:flex;flex-direction:column;gap:14px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.panel{background:var(--deck);border:1px solid var(--wire);padding:18px;min-width:0}
+.chip{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border:1px solid var(--wire);color:var(--dim)}
+.chip.amber{border-color:var(--amber);color:var(--amber)}
+.chip.bull{border-color:var(--bull);color:var(--bull)}
+.chip.bear{border-color:var(--bear);color:var(--bear)}
+
+/* hub */
+.hero{position:relative;padding-block:8px 18px;display:grid;gap:14px}
+#sky{width:100%;height:120px;display:block;border-bottom:1px solid var(--wire)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:1px;background:var(--wire);border:1px solid var(--wire);margin-top:22px}
+.tile{background:var(--deck);padding:16px;display:flex;flex-direction:column;gap:8px;min-height:178px;text-align:left;border:0;cursor:default;position:relative}
+.tile .num{font-family:var(--display);font-weight:900;font-size:44px;line-height:.8;color:var(--wire)}
+.tile .dname{font-family:var(--display);font-weight:800;font-size:24px;text-transform:uppercase;line-height:1}
+.tile .topic{font-size:13px;color:var(--dim)}
+.tile .foot{margin-top:auto;display:flex;justify-content:space-between;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--dim)}
+.tile.live{cursor:pointer;background:linear-gradient(180deg,var(--amber-soft),transparent 70%),var(--deck)}
+.tile.live .num{color:var(--amber)}
+.tile.live:hover{outline:1px solid var(--amber);z-index:1}
+.tile.locked .dname,.tile.locked .topic{opacity:.55}
+.meter{display:flex;gap:3px}
+.meter i{width:22px;height:5px;background:var(--wire)}
+.meter i.on{background:var(--amber)}
+
+/* district */
+.dhead{display:grid;gap:10px;padding-bottom:18px;border-bottom:1px solid var(--wire)}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--wire);margin-block:18px;overflow-x:auto}
+.tab{background:none;border:0;border-bottom:2px solid transparent;padding:10px 16px;font-family:var(--display);font-weight:800;font-size:20px;text-transform:uppercase;letter-spacing:.04em;cursor:pointer;color:var(--dim);white-space:nowrap}
+.tab.on{color:var(--amber);border-bottom-color:var(--amber)}
+.tab .tick{font-family:var(--mono);font-size:11px;margin-left:6px;color:var(--bull)}
+.grid2{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:18px;align-items:start}
+@media (max-width:900px){.grid2{grid-template-columns:1fr}}
+.chapter h3{margin-bottom:10px}
+.chapter p+p{margin-top:10px}
+.try{border-left:2px solid var(--amber);padding:8px 12px;background:var(--amber-soft);font-size:14px}
+pre.code{font-family:var(--mono);font-size:12.5px;background:var(--ink);border:1px solid var(--wire);padding:10px 12px;overflow-x:auto;margin:0;color:var(--paper)}
+.formula{font-family:var(--mono);font-size:13.5px;background:var(--ink);border:1px solid var(--wire);padding:10px 12px;overflow-x:auto;color:var(--amber)}
+ul.tight{margin:0;padding-left:18px}
+ul.tight li+li{margin-top:4px}
+.dots{display:flex;gap:6px}
+.dots i{width:24px;height:4px;background:var(--wire)}
+.dots i.on{background:var(--amber)}
+
+.sliders{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px 20px}
+.sl label{display:flex;justify-content:space-between;font-size:12px;color:var(--dim);font-family:var(--mono);text-transform:uppercase;letter-spacing:.06em}
+.sl label b{color:var(--paper)}
+input[type=range]{width:100%;accent-color:var(--amber)}
+.readout{display:grid;grid-template-columns:repeat(auto-fit,minmax(118px,1fr));gap:1px;background:var(--wire);border:1px solid var(--wire);margin-block:14px}
+.readout div{background:var(--ink);padding:10px}
+.readout small{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim)}
+.readout b{font-family:var(--mono);font-size:20px;font-weight:600;font-variant-numeric:tabular-nums}
+.svgbox{overflow-x:auto}
+.svgbox svg{display:block;width:100%;height:auto;min-width:420px}
+.figcap{font-size:12px;color:var(--dim);font-family:var(--mono);margin-top:6px}
+.shock{font-family:var(--mono);font-size:13px;border:1px solid var(--wire);padding:10px 12px;background:var(--ink)}
+.shock td{padding:2px 10px 2px 0}
+
+/* question */
+.q{display:grid;gap:14px}
+.vignette{font-size:16px;max-width:72ch}
+.opts{display:grid;gap:8px}
+.opt{display:grid;grid-template-columns:34px 1fr;gap:10px;align-items:start;text-align:left;background:var(--deck-2);border:1px solid var(--wire);padding:11px 12px;cursor:pointer;border-radius:2px}
+.opt .k{font-family:var(--display);font-weight:900;font-size:22px;line-height:1;color:var(--dim)}
+.opt:hover{border-color:var(--dim)}
+.opt.sel{border-color:var(--amber)}
+.opt.sel .k{color:var(--amber)}
+.opt.right{border-color:var(--bull);background:rgba(63,217,154,.08)}
+.opt.right .k{color:var(--bull)}
+.opt.wrong{border-color:var(--bear);background:rgba(255,99,99,.08)}
+.opt.wrong .k{color:var(--bear)}
+.opt .why{grid-column:2;font-size:13.5px;color:var(--dim);margin-top:4px}
+.conf{display:grid;gap:6px;max-width:520px}
+.conf label{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--dim)}
+.conf label b{color:var(--amber)}
+.keys{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+kbd{font-family:var(--mono);font-size:12px;background:var(--deck-2);border:1px solid var(--wire);border-bottom-width:2px;padding:2px 7px;color:var(--paper)}
+.verdict{font-family:var(--display);font-weight:900;font-size:30px;text-transform:uppercase;line-height:1}
+.qmeta{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+
+/* play */
+.desk{width:100%;border-collapse:collapse;font-size:13.5px}
+.desk th,.desk td{border-bottom:1px solid var(--wire);padding:8px 8px;text-align:left;white-space:nowrap}
+.desk th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--dim);font-weight:400}
+.desk td.n{font-family:var(--mono);text-align:right;font-variant-numeric:tabular-nums}
+.desk tr.pick{cursor:pointer}
+.desk tr.pick:hover td{background:var(--deck-2)}
+.tablewrap{overflow-x:auto}
+.headline{font-family:var(--display);font-weight:800;font-size:clamp(22px,3.4vw,32px);text-transform:uppercase;line-height:1.05;border-left:4px solid var(--amber);padding-left:12px}
+.inp{background:var(--ink);border:1px solid var(--wire);padding:8px 10px;font-family:var(--mono);font-size:15px;color:var(--paper);width:160px;border-radius:2px}
+.inp:focus{border-color:var(--amber);outline:none}
+.big{font-family:var(--mono);font-size:30px;font-weight:600;font-variant-numeric:tabular-nums}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.fcard{border:1px solid var(--wire);background:var(--deck);padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.fcard.got{border-color:var(--amber);box-shadow:inset 0 3px 0 var(--amber)}
+.fcard.lock{opacity:.6}
+.fcard .fname{font-family:var(--display);font-weight:800;font-size:22px;text-transform:uppercase;line-height:1}
+
+/* tables */
+.tbl{width:100%;border-collapse:collapse;font-size:13.5px}
+.tbl th,.tbl td{border-bottom:1px solid var(--wire);padding:8px;text-align:left;vertical-align:top}
+.tbl th{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);font-weight:400}
+.tbl td.n{font-family:var(--mono);text-align:right}
+
+/* calculator */
+.calcwrap{display:grid;grid-template-columns:minmax(0,380px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.calcwrap{grid-template-columns:1fr}}
+.calc{background:#1B1D21;border:1px solid #2E3238;padding:16px;border-radius:10px;max-width:380px}
+.lcd{background:#B8C2A6;color:#18200F;font-family:var(--mono);padding:10px 12px;border-radius:3px;min-height:72px;display:flex;flex-direction:column;justify-content:space-between}
+.lcd .flags{font-size:10px;letter-spacing:.1em;display:flex;gap:10px;min-height:13px}
+.lcd .val{font-size:28px;text-align:right;font-weight:600;overflow:hidden;white-space:nowrap}
+.pad{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:14px}
+.key{background:#2C3036;border:0;border-bottom:3px solid #15171A;color:#E9ECEF;padding:10px 0;border-radius:5px;font-family:var(--mono);font-size:13px;font-weight:600;cursor:pointer}
+.key:active{transform:translateY(1px);border-bottom-width:2px}
+.key.tvm{background:#3A3F47}
+.key.second{background:#E8A11A;color:#1A1100;border-bottom-color:#8A5D05}
+.key.cpt{background:#4B5563}
+.key.num{background:#E7E9EC;color:#111;border-bottom-color:#9AA0A6}
+.tape{font-family:var(--mono);font-size:12px;color:var(--dim);max-height:140px;overflow:auto;border:1px solid var(--wire);padding:8px;background:var(--ink)}
+
+/* modal + toast */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:40;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal{background:var(--deck);border:1px solid var(--wire);max-width:620px;width:100%;padding:20px;display:grid;gap:12px;max-height:90vh;overflow:auto}
+textarea{width:100%;min-height:120px;background:var(--ink);color:var(--paper);border:1px solid var(--wire);font-family:var(--mono);font-size:12px;padding:10px;resize:vertical}
+#toasts{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:50;display:grid;gap:8px;max-width:min(360px,calc(100vw - 32px))}
+.toast{background:var(--deck-2);border:1px solid var(--amber);padding:10px 14px;font-size:14px;animation:pop .25s ease-out}
+.toast b{color:var(--amber);font-family:var(--display);text-transform:uppercase;font-size:17px;letter-spacing:.03em}
+@keyframes pop{from{transform:translateY(8px);opacity:.3}to{transform:none;opacity:1}}
+.boss{height:14px;background:var(--wire);position:relative}
+.boss i{position:absolute;inset:0 auto 0 0;background:var(--bear);transition:width .4s}
+.timer{font-family:var(--mono);font-size:22px;font-weight:600}
+.timer.low{color:var(--bear)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media (max-width:560px){.nav{margin-left:0}.stats{gap:4px 12px}.xpbar{width:70px}}
+</style>
+
+<header class="bar"><div class="bar-in" id="bar"></div></header>
+<main class="shell" id="main"></main>
+<div id="modalRoot"></div>
+<div id="toasts" aria-live="polite"></div>
+
+<script>
+/* =====================================================================
+   WALL STREET QUEST — engine v0.1 (District 7: Bond Bridge)
+   State lives in memory (S). Export/import moves it between sessions.
+   ===================================================================== */
+
+// ---------- curriculum map (official CFA L1 topic weight ranges, %) ----------
+const DISTRICTS = [
+  {id:1, name:"Compliance Court",       topic:"Ethics & Professional Standards", w:[15,20]},
+  {id:2, name:"The Data Lab",           topic:"Quantitative Methods",           w:[6,9]},
+  {id:3, name:"Central Bank War Room",  topic:"Economics",                      w:[6,9]},
+  {id:4, name:"Forensic Accountant",    topic:"Financial Statement Analysis",   w:[11,14]},
+  {id:5, name:"CFO's Desk",             topic:"Corporate Issuers",              w:[6,9]},
+  {id:6, name:"Pitch Arena",            topic:"Equity Investments",             w:[11,14]},
+  {id:7, name:"Bond Bridge",            topic:"Fixed Income",                   w:[11,14]},
+  {id:8, name:"Options Casino",         topic:"Derivatives",                    w:[5,8]},
+  {id:9, name:"The Vault",              topic:"Alternative Investments",        w:[7,10]},
+  {id:10,name:"Fund Manager HQ",        topic:"Portfolio Management",           w:[8,12]},
+];
+const BUILT = [7];
+
+const RANKS = [[0,"Intern"],[150,"Analyst I"],[400,"Analyst II"],[800,"Associate"],[1300,"Senior Associate"],[2000,"Vice President"],[3000,"Director"],[4200,"Managing Director"],[6000,"Charterholder"]];
+
+// ---------- weak-spot tags (LOS-level) ----------
+const TAGS = {
+  "fi.price-yield":     {label:"Price–yield seesaw", los:"Explain the inverse price–yield relationship; identify premium, par and discount bonds"},
+  "fi.bond-pricing":    {label:"Bond pricing", los:"Calculate a bond's price given a market discount rate"},
+  "fi.current-yield":   {label:"Current yield", los:"Calculate and interpret current yield"},
+  "fi.mod-duration":    {label:"Macaulay → modified duration", los:"Calculate modified duration from Macaulay duration"},
+  "fi.duration-approx": {label:"Duration price estimate", los:"Estimate a bond's percentage price change using modified duration"},
+  "fi.convexity":       {label:"Convexity adjustment", los:"Estimate price change using duration and convexity"},
+  "fi.duration-drivers":{label:"What drives duration", los:"Explain how coupon, maturity and yield affect interest rate risk"},
+  "fi.spreads":         {label:"Yield spreads & OAS", los:"Compare G-spread, I-spread, Z-spread and option-adjusted spread"},
+  "fi.periodicity":     {label:"Semiannual pricing", los:"Price bonds with non-annual coupon periodicity"},
+  "fi.duration-gap":    {label:"Horizon vs Macaulay duration", los:"Explain how investment horizon and Macaulay duration determine price vs reinvestment risk"},
+};
+
+// ---------- question bank: {id, topic, los, difficulty, vignette, options, answer, explanation, tag, keys?} ----------
+const QUESTIONS = [
+{ id:"fi-001", topic:7, tag:"fi.price-yield", difficulty:"easy",
+  los:TAGS["fi.price-yield"].los,
+  vignette:"Marta holds a 10-year bond issued last year with a 4.0% annual coupon. After a hot inflation report, yields on comparable bonds rise from 4.0% to 5.0%. Assuming nothing else changes, Marta's bond will now trade:",
+  options:{A:"at a premium to par.", B:"at par.", C:"at a discount to par."},
+  answer:"C",
+  explanation:{
+    A:"A premium needs the coupon to beat the market yield. Here the coupon (4%) is below the yield buyers now demand (5%), so the opposite happens.",
+    B:"Par only holds while coupon rate = market yield. That was true at issue; the 1% rise broke it.",
+    C:"Correct. Buyers want 5% but the bond pays 4%. The only way to deliver 5% is a lower price, so it trades below 100."
+  }},
+{ id:"fi-002", topic:7, tag:"fi.current-yield", difficulty:"easy",
+  los:TAGS["fi.current-yield"].los,
+  vignette:"A bond with a 5% annual coupon and 100 face value is quoted at a price of 95.00. Its current yield is closest to:",
+  options:{A:"5.00%", B:"5.26%", C:"4.75%"},
+  answer:"B",
+  explanation:{
+    A:"5.00% is the coupon rate (coupon ÷ face). Current yield divides by price, not face.",
+    B:"Correct. Current yield = annual coupon ÷ price = 5 ÷ 95 = 5.26%.",
+    C:"4.75% multiplies the coupon by the price ratio (5 × 0.95). The price belongs in the denominator."
+  }},
+{ id:"fi-003", topic:7, tag:"fi.mod-duration", difficulty:"easy",
+  los:TAGS["fi.mod-duration"].los,
+  vignette:"An analyst calculates a Macaulay duration of 7.20 years for an annual-pay bond with a yield-to-maturity of 6%. The bond's modified duration is closest to:",
+  options:{A:"6.79", B:"7.20", C:"7.63"},
+  answer:"A",
+  explanation:{
+    A:"Correct. ModDur = MacDur ÷ (1 + r) = 7.20 ÷ 1.06 = 6.79. Annual pay, so r is the full 6%.",
+    B:"7.20 is the Macaulay duration itself. Modified duration always sits a little lower for a positive yield.",
+    C:"7.63 multiplies by 1.06 instead of dividing."
+  }},
+{ id:"fi-004", topic:7, tag:"fi.bond-pricing", difficulty:"medium",
+  los:TAGS["fi.bond-pricing"].los,
+  vignette:"Kensington Rail issues a 3-year bond with a 6% annual coupon and 100 face value. Comparable bonds yield 5%. The bond's price is closest to:",
+  options:{A:"97.38", B:"102.72", C:"103.00"},
+  answer:"B",
+  explanation:{
+    A:"97.38 is the price at a 7% yield. When the coupon beats the yield, the bond must trade above par, not below.",
+    B:"Correct. 6/1.05 + 6/1.05² + 106/1.05³ = 5.714 + 5.442 + 91.567 = 102.72.",
+    C:"103.00 adds the extra 1% coupon for 3 years without discounting it. Future cash is worth less today, so the premium is smaller."
+  },
+  keys:["3 N","5 I/Y","6 PMT","100 FV","CPT PV → −102.72"]},
+{ id:"fi-005", topic:7, tag:"fi.duration-approx", difficulty:"medium",
+  los:TAGS["fi.duration-approx"].los,
+  vignette:"A portfolio manager holds a bond priced at 104.00 with a modified duration of 8.5. If its yield-to-maturity rises by 50 basis points, the estimated new price using duration alone is closest to:",
+  options:{A:"99.58", B:"99.75", C:"108.42"},
+  answer:"A",
+  explanation:{
+    A:"Correct. %ΔP ≈ −8.5 × 0.005 = −4.25%. New price ≈ 104 × (1 − 0.0425) = 99.58.",
+    B:"99.75 subtracts 4.25 points from 104. Duration gives a percentage of the current price (4.25% of 104 = 4.42), not price points.",
+    C:"108.42 has the sign flipped. Higher yields mean lower prices."
+  }},
+{ id:"fi-006", topic:7, tag:"fi.duration-drivers", difficulty:"medium",
+  los:TAGS["fi.duration-drivers"].los,
+  vignette:"Three option-free bonds all yield 6%: Bond X is a 10-year 8% coupon; Bond Y is a 10-year 2% coupon; Bond Z is a 5-year 2% coupon. Which bond has the highest interest rate risk?",
+  options:{A:"Bond X", B:"Bond Y", C:"Bond Z"},
+  answer:"B",
+  explanation:{
+    A:"X has the same maturity as Y but a bigger coupon, so more of its value arrives early. That pulls duration down.",
+    B:"Correct. Longest maturity plus lowest coupon pushes the most value to the final payment. The fulcrum sits furthest right, so duration is highest.",
+    C:"Z has Y's low coupon but half the maturity. Shorter maturity means shorter duration."
+  }},
+{ id:"fi-007", topic:7, tag:"fi.duration-gap", difficulty:"medium",
+  los:TAGS["fi.duration-gap"].los,
+  vignette:"Jin buys a bond with a Macaulay duration of 9 years and plans to sell it in 6 years. Immediately after purchase, market yields rise by 100 bp and stay there. Which statement best describes Jin's position?",
+  options:{
+    A:"Reinvestment risk dominates, so his realized return rises above the original YTM.",
+    B:"Price risk dominates, so his realized return falls below the original YTM.",
+    C:"The two risks offset, so his realized return equals the original YTM."},
+  answer:"B",
+  explanation:{
+    A:"Reinvestment gains win only when the horizon is longer than Macaulay duration. Jin sells early.",
+    B:"Correct. Duration gap = 9 − 6 = +3 years. With a positive gap, the price drop on sale outweighs the extra coupon reinvestment income.",
+    C:"The offset is exact only when the horizon equals Macaulay duration (gap = 0)."
+  }},
+{ id:"fi-008", topic:7, tag:"fi.convexity", difficulty:"hard",
+  los:TAGS["fi.convexity"].los,
+  vignette:"A 20-year bond has an annual modified duration of 10.0 and annual convexity of 150. If its yield falls by 100 bp, the estimated percentage price change using duration and convexity is closest to:",
+  options:{A:"+10.00%", B:"+10.75%", C:"+9.25%"},
+  answer:"B",
+  explanation:{
+    A:"+10.00% is the duration term alone. With a 100 bp move, convexity adds a noticeable extra gain.",
+    B:"Correct. −10 × (−0.01) + ½ × 150 × (0.01)² = 0.100 + 0.0075 = +10.75%.",
+    C:"+9.25% subtracts the convexity term. For an option-free bond, convexity always adds, whether yields rise or fall."
+  }},
+{ id:"fi-009", topic:7, tag:"fi.spreads", difficulty:"hard",
+  los:TAGS["fi.spreads"].los,
+  vignette:"An analyst values a callable corporate bond. Its Z-spread over the government spot curve is 180 bp, and the embedded call option is worth 35 bp. The bond's option-adjusted spread (OAS) is closest to:",
+  options:{A:"215 bp", B:"145 bp", C:"180 bp"},
+  answer:"B",
+  explanation:{
+    A:"215 bp adds the option cost. That works for a putable bond, where the option benefits the investor, not for a callable.",
+    B:"Correct. The issuer owns the call, so part of the Z-spread just pays you for that option. OAS = Z-spread − option cost = 180 − 35 = 145 bp.",
+    C:"180 bp is the Z-spread. It ignores the embedded option entirely."
+  }},
+{ id:"fi-010", topic:7, tag:"fi.periodicity", difficulty:"hard",
+  los:TAGS["fi.periodicity"].los,
+  vignette:"A 4-year bond pays a 5% coupon semiannually. Its yield-to-maturity, quoted on a semiannual bond basis, is 6%. The bond's price per 100 of face value is closest to:",
+  options:{A:"96.53", B:"96.49", C:"78.27"},
+  answer:"B",
+  explanation:{
+    A:"96.53 prices the bond with annual payments (N = 4, I/Y = 6, PMT = 5). The coupons arrive twice a year.",
+    B:"Correct. Per period: N = 8, r = 3%, PMT = 2.50, FV = 100 → price = 96.49.",
+    C:"78.27 uses the annual 6% as the per-period rate over 8 periods. Halve the quoted yield as well as the coupon."
+  },
+  keys:["8 N","3 I/Y","2.5 PMT","100 FV","CPT PV → −96.49"]},
+];
+
+// ---------- formula cards ----------
+const CARDS = [
+  {id:"fi.price", d:7, name:"Bond Price",
+   f:"P = Σ PMT/(1+r)^t + FV/(1+r)^N",
+   gist:"A dot product: cash-flow vector · discount-factor vector. In NumPy: (cf * (1+r)**-t).sum().",
+   keys:["N","I/Y","PMT","FV","CPT PV"],
+   how:"Price 2 of 3 tickets in the Pricing Booth."},
+  {id:"fi.moddur", d:7, name:"Modified Duration",
+   f:"ModDur = MacDur / (1 + r)",
+   gist:"Macaulay is a time (years). Modified is a sensitivity (% price change per 1.00 change in yield). r is the yield per period.",
+   keys:[], how:"Answer the morning briefing's first question."},
+  {id:"fi.pvbp", d:7, name:"PVBP",
+   f:"PVBP ≈ ModDur × Value × 0.0001",
+   gist:"Dollars gained or lost per 1 bp move. Traders size risk in this, not in duration.",
+   keys:[], how:"Answer the morning briefing's second question."},
+  {id:"fi.durest", d:7, name:"Duration Estimate",
+   f:"%ΔP ≈ −ModDur × Δy",
+   gist:"The tangent line. Accurate for small moves, increasingly wrong for big ones.",
+   keys:[], how:"Estimate a position's % change correctly on the Rate Shock Desk."},
+  {id:"fi.conv", d:7, name:"Convexity Adjustment",
+   f:"%ΔP ≈ −ModDur·Δy + ½·Convexity·(Δy)²",
+   gist:"Adds back the curve's bend. For an option-free bond the convexity term is always positive.",
+   keys:[], how:"Nail an estimate where convexity moves the answer by more than 0.30%."},
+];
+const FUTURE_CARDS = 45; // 5 per district for the 9 districts still to come
+
+// ---------- state ----------
+function freshState(){
+  return {v:1, xp:0, session:1, streak:0, bestStreak:0,
+    log:[], tags:{}, cards:[], drills:[],
+    d:{7:{learn:false, step:0, booth:false, play:false, testBest:null, tests:0}}};
+}
+let S = freshState();
+const UI = {view:"hub", tab:"learn", lab:{c:.05, y:.06, n:10, f:2}, test:null, play:null, exam:null, review:null, calc:null};
+
+// ---------- utilities ----------
+const $ = s => document.querySelector(s);
+const fmt = (x,d=2) => (x<0?"−":"") + Math.abs(x).toLocaleString("en-AU",{minimumFractionDigits:d,maximumFractionDigits:d});
+const sgn = (x,d=2) => (x>0?"+":"") + fmt(x,d);
+const money = x => (x<0?"−$":"$") + Math.round(Math.abs(x)).toLocaleString("en-AU");
+const pct = x => fmt(x*100,2) + "%";
+const shuffle = a => { a=[...a]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; };
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const num = s => parseFloat(String(s).replace(/[−–]/g,"-").replace(/[%,$\s]/g,""));
+function gauss(){ let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+
+function rankOf(xp){ let r=RANKS[0], next=null; for(let i=0;i<RANKS.length;i++){ if(xp>=RANKS[i][0]){ r=RANKS[i]; next=RANKS[i+1]||null; } } return {name:r[1], floor:r[0], next}; }
+function calib(){
+  const L=S.log; if(!L.length) return null;
+  const brier=L.reduce((s,a)=>s+Math.pow(a.c-(a.ok?1:0),2),0)/L.length;
+  const acc=L.filter(a=>a.ok).length/L.length, conf=L.reduce((s,a)=>s+a.c,0)/L.length;
+  return {score:Math.round(100*(1-brier)), acc, conf, over:conf-acc, n:L.length};
+}
+function toast(title, body){
+  const t=document.createElement("div"); t.className="toast"; t.innerHTML=`<b>${title}</b><div>${body||""}</div>`;
+  $("#toasts").appendChild(t); setTimeout(()=>t.remove(), 4200);
+}
+function addXP(n, why){
+  if(n<=0) return; const before=rankOf(S.xp).name; S.xp+=Math.round(n); const after=rankOf(S.xp).name;
+  if(after!==before) toast("Promoted: "+after, "The elevator doors open on a higher floor.");
+  renderBar();
+}
+function unlockCard(id){
+  if(S.cards.includes(id)) return false;
+  S.cards.push(id); const c=CARDS.find(x=>x.id===id);
+  toast("Formula card unlocked", c.name+" — added to your binder."); addXP(25); return true;
+}
+
+// ---------- bond math ----------
+function bond(c,y,n,f){
+  const N=Math.max(1,Math.round(n*f)), r=y/f, cpn=100*c/f; let P=0,m=0,cx=0; const flows=[];
+  for(let t=1;t<=N;t++){ const cf=cpn+(t===N?100:0), pv=cf/Math.pow(1+r,t); P+=pv; m+=t*pv; cx+=t*(t+1)*pv; flows.push({t:t/f,cf,pv}); }
+  const mac=m/P/f; return {P, mac, mod:mac/(1+r), conv:cx/(P*Math.pow(1+r,2))/(f*f), flows};
+}
+
+// ---------- TVM solver (BA II Plus conventions: P/Y = C/Y = 1, END mode) ----------
+function tvm(target, R){
+  const {N,I,PV,PMT,FV}=R, i=I/100;
+  const ann=(i,n)=>Math.abs(i)<1e-12? n : (1-Math.pow(1+i,-n))/i;
+  const f=i=>PV+PMT*ann(i,N)+FV*Math.pow(1+i,-N);
+  if(target==="PV") return -(PMT*ann(i,N)+FV*Math.pow(1+i,-N));
+  if(target==="FV") return -(PV+PMT*ann(i,N))*Math.pow(1+i,N);
+  if(target==="PMT") return -(PV+FV*Math.pow(1+i,-N))/ann(i,N);
+  if(target==="N"){
+    if(Math.abs(i)<1e-12) return PMT? -(PV+FV)/PMT : NaN;
+    const v=(-PV-PMT/i)/(FV-PMT/i); return v>0? -Math.log(v)/Math.log(1+i) : NaN;
+  }
+  if(target==="I"){
+    let lo=-0.99, hi=5, flo=f(lo), prev=lo, pf=flo, found=false;
+    for(let k=1;k<=2000;k++){ const x=-0.99+k*(5.99/2000), fx=f(x); if(pf*fx<=0){lo=prev;hi=x;found=true;break;} prev=x;pf=fx; }
+    if(!found) return NaN;
+    for(let k=0;k<200;k++){ const m=(lo+hi)/2; if(f(lo)*f(m)<=0) hi=m; else lo=m; }
+    return (lo+hi)/2*100;
+  }
+}
+
+/* =====================================================================
+   HEADER
+   ===================================================================== */
+function renderBar(){
+  const r=rankOf(S.xp), cb=calib();
+  const prog = r.next? Math.min(100,100*(S.xp-r.floor)/(r.next[0]-r.floor)) : 100;
+  const nav=[["hub","City map"],["cards","Formula cards"],["weak","Weak spots"],["calc","BA II Plus"],["exam","Exam mode"]];
+  $("#bar").innerHTML = `
+    <button class="brand" data-act="go" data-v="hub">Wall Street <b>Quest</b></button>
+    <div class="stats">
+      <span><b>${r.name}</b></span>
+      <span>XP <b>${S.xp}</b>${r.next?` / ${r.next[0]}`:""}<span class="xpbar"><i style="width:${prog}%"></i></span></span>
+      <span>Streak <b>${S.streak}</b></span>
+      <span>Session <b>${S.session}</b></span>
+      <span>Calibration <b>${cb?cb.score:"—"}</b></span>
+    </div>
+    <nav class="nav">
+      ${nav.map(([v,l])=>`<button class="btn sm ${UI.view===v?"on":""}" data-act="go" data-v="${v}">${l}</button>`).join("")}
+      <button class="btn sm primary" data-act="save">Save / load</button>
+    </nav>`;
+}
+
+/* =====================================================================
+   HUB
+   ===================================================================== */
+function districtProgress(id){
+  const d=S.d[id]; if(!d) return [false,false,false];
+  return [d.learn, d.play, d.testBest!=null && d.testBest>=0.7];
+}
+function viewHub(){
+  const d7=S.d[7], cb=calib();
+  let next = !d7.learn? ["Start your first shift", "Head to Bond Bridge and work through Learn."]
+           : !d7.play? ["Hit the trading floor", "Bond Bridge → Play. Price tickets, then survive five rate shocks."]
+           : d7.testBest==null? ["Sit the Bond Bridge test", "Ten CFA-style vignettes. Set your confidence honestly."]
+           : dueTags().length? ["The Review Boss is awake", `${dueTags().length} weak spot(s) due this session.`]
+           : ["District cleared for now", "Re-run the test, drill the BA II Plus, or close the day to schedule reviews."];
+  return `
+  <section class="hero">
+    <canvas id="sky" aria-hidden="true"></canvas>
+    <div class="eyebrow">CFA Level I · 10 districts · Intern → Charterholder</div>
+    <h1>Wall Street <span class="amber">Quest</span></h1>
+    <p class="narr">The city never sleeps, and neither do its yield curves. You arrive with a laptop, a lanyard and a suspicion that "duration" is not about time. Ten districts stand between you and the charter. Only one has its lights on.</p>
+    <div class="row">
+      <div class="panel" style="flex:1 1 320px">
+        <div class="eyebrow">Next move</div>
+        <h3 style="margin-top:6px">${next[0]}</h3>
+        <p class="dim" style="margin-top:6px">${next[1]}</p>
+        <div class="row" style="margin-top:12px">
+          <button class="btn primary" data-act="open" data-id="7">Enter Bond Bridge</button>
+          ${dueTags().length?`<button class="btn" data-act="go" data-v="review">Fight the Review Boss</button>`:""}
+        </div>
+      </div>
+      <div class="panel" style="flex:1 1 260px">
+        <div class="eyebrow">Your desk</div>
+        <table class="tbl" style="margin-top:6px"><tbody>
+          <tr><td>Questions answered</td><td class="n">${S.log.length}</td></tr>
+          <tr><td>Accuracy</td><td class="n">${cb?pct(cb.acc):"—"}</td></tr>
+          <tr><td>Avg confidence</td><td class="n">${cb?pct(cb.conf):"—"}</td></tr>
+          <tr><td>Formula cards</td><td class="n">${S.cards.length} / ${CARDS.length+FUTURE_CARDS}</td></tr>
+          <tr><td>Best streak</td><td class="n">${S.bestStreak}</td></tr>
+        </tbody></table>
+      </div>
+    </div>
+  </section>
+  <div class="tiles">
+    ${DISTRICTS.map(d=>{
+      const live=BUILT.includes(d.id), p=districtProgress(d.id);
+      return `<${live?"button":"div"} class="tile ${live?"live":"locked"}" ${live?`data-act="open" data-id="${d.id}"`:""}>
+        <span class="num">${String(d.id).padStart(2,"0")}</span>
+        <span class="dname">${d.name}</span>
+        <span class="topic">${d.topic}</span>
+        <span class="foot"><span>${d.w[0]}–${d.w[1]}% of exam</span>
+        ${live?`<span class="meter" title="Learn · Play · Test">${p.map(o=>`<i class="${o?"on":""}"></i>`).join("")}</span>`:`<span class="chip">Coming soon</span>`}</span>
+      </${live?"button":"div"}>`;}).join("")}
+  </div>`;
+}
+function drawSky(){
+  const c=$("#sky"); if(!c) return; const dpr=window.devicePixelRatio||1, w=c.clientWidth, h=c.clientHeight;
+  c.width=w*dpr; c.height=h*dpr; const g=c.getContext("2d"); g.scale(dpr,dpr);
+  let seed=7; const rnd=()=>{seed=(seed*16807)%2147483647; return seed/2147483647;};
+  const css=getComputedStyle(document.documentElement);
+  const deck=css.getPropertyValue("--deck-2").trim(), amber=css.getPropertyValue("--amber").trim(), wire=css.getPropertyValue("--wire").trim();
+  let x=0; while(x<w){ const bw=18+rnd()*46, bh=24+rnd()*(h-30); g.fillStyle=deck; g.fillRect(x,h-bh,bw-2,bh);
+    g.fillStyle=wire; g.fillRect(x,h-bh,bw-2,1);
+    for(let wy=h-bh+6; wy<h-6; wy+=8) for(let wx=x+4; wx<x+bw-6; wx+=7){ const r=rnd(); if(r>.86){ g.fillStyle=r>.97?amber:"rgba(255,176,32,.35)"; g.fillRect(wx,wy,3,3);} }
+    x+=bw; }
+}
+
+/* =====================================================================
+   DISTRICT 7 — BOND BRIDGE
+   ===================================================================== */
+const CHAPTERS = [
+ {t:"Every bond is a payment schedule", html:`
+   <p>Welcome to the Bond Bridge. Nobody down here cares what a bond <em>is</em>. They care what it pays, and when.</p>
+   <p>A bond is a vector of future cash flows: small coupons, then the face value at the end. Its price is that vector dotted with a vector of discount factors. You already know this move from pandas.</p>
+   <pre class="code">t     = np.arange(1, N + 1)           # periods
+cf    = np.full(N, coupon); cf[-1] += 100
+price = (cf * (1 + r) ** -t).sum()    # PV of everything</pre>
+   <p>The lab on the right draws each cash flow at its present value. Same bond, same yield, the far-off bars shrink: that is discounting.</p>`,
+  tryit:"Set the coupon to 0%. You've built a zero-coupon bond: one cash flow, all at maturity."},
+ {t:"The seesaw", html:`
+   <p>Price and yield sit on opposite ends of a seesaw. The coupon is a promise frozen at issue. The yield is what the market demands <em>today</em>.</p>
+   <p>When buyers demand more than the coupon pays, the only way to give them their return is a lower price. When they'll accept less, they pay up.</p>
+   <ul class="tight">
+     <li>YTM &gt; coupon → <b>discount</b> (price below 100)</li>
+     <li>YTM = coupon → <b>par</b> (price = 100)</li>
+     <li>YTM &lt; coupon → <b>premium</b> (price above 100)</li>
+   </ul>`,
+  tryit:"Set the coupon equal to the YTM. The price snaps to 100.00. Now nudge YTM up by 1% and watch it sink."},
+ {t:"The fulcrum", html:`
+   <p>Treat each PV bar as a weight on a plank laid along the timeline. <b>Macaulay duration</b> is where the fulcrum must sit to balance it: the PV-weighted average time until you're paid.</p>
+   <p><b>Modified duration</b> converts that time into sensitivity: the approximate % price change for a 1.00 (100 bp) change in yield.</p>
+   <div class="formula">ModDur = MacDur / (1 + r)      r = YTM per period</div>
+   <ul class="tight">
+     <li>Lower coupon → more weight at the end → longer duration</li>
+     <li>Longer maturity → longer duration (for normal coupon bonds)</li>
+     <li>Higher yield → far cash flows shrink → shorter duration</li>
+   </ul>`,
+  tryit:"Drop the coupon from 8% to 2% and watch the fulcrum slide toward maturity."},
+ {t:"The curve bends", html:`
+   <p>Duration is a straight line. The price–yield relationship is a curve. The dashed tangent is duration's forecast; the solid curve is what actually happens.</p>
+   <p>For an option-free bond the curve always sits above the tangent. Duration therefore understates gains when yields fall and overstates losses when they rise. The shaded gap is <b>convexity</b>.</p>
+   <div class="formula">%ΔP ≈ −ModDur × Δy + ½ × Convexity × (Δy)²</div>
+   <p>Check the "+100 bp" table under the chart: the convexity-adjusted estimate lands much closer to the actual repricing.</p>`,
+  tryit:"Push maturity to 30 years and the coupon to 0%. The curve bows hard. That is a lot of convexity."},
+ {t:"Spreads: the price of risk", html:`
+   <p>A corporate bond's yield is a benchmark yield plus a spread. The spread pays you for credit risk, liquidity risk and any options the issuer holds against you.</p>
+   <ul class="tight">
+     <li><b>G-spread</b>: over the (interpolated) government bond yield of the same maturity</li>
+     <li><b>I-spread</b>: over the swap rate of the same maturity</li>
+     <li><b>Z-spread</b>: one constant spread added to every point on the government spot curve</li>
+     <li><b>OAS</b>: Z-spread minus the value of embedded options. Callable bond → OAS &lt; Z-spread; putable → OAS &gt; Z-spread</li>
+   </ul>
+   <p>That's the briefing. The trading floor is open.</p>`,
+  tryit:"In the lab, add 1% to YTM to simulate a credit spread widening. Same seesaw: wider spreads, lower prices."},
+];
+
+function viewDistrict(){
+  const d=S.d[7], p=districtProgress(7);
+  const tab=(k,l,ok)=>`<button class="tab ${UI.tab===k?"on":""}" data-act="tab" data-t="${k}">${l}${ok?`<span class="tick">✓</span>`:""}</button>`;
+  return `
+  <section class="dhead">
+    <div class="row"><button class="btn sm ghost" data-act="go" data-v="hub">← City map</button><span class="eyebrow">District 07 · Fixed Income · 11–14% of the exam</span></div>
+    <h2>Bond <span class="amber">Bridge</span></h2>
+    <p class="narr">Fog off the harbour. Below the bridge, a trillion dollars of promises trade on one question: what is a fixed cash flow worth when nothing else stays fixed?</p>
+  </section>
+  <div class="tabs" role="tablist">${tab("learn","Learn",p[0])}${tab("play","Play",p[1])}${tab("test","Test",p[2])}</div>
+  <div id="tabBody">${UI.tab==="learn"?viewLearn():UI.tab==="play"?viewPlay():viewTest()}</div>`;
+}
+
+// ---------- LEARN ----------
+function viewLearn(){
+  const d=S.d[7], i=d.step, ch=CHAPTERS[i], L=UI.lab;
+  return `<div class="grid2">
+    <div class="panel chapter stack">
+      <div class="row" style="justify-content:space-between"><span class="eyebrow">Chapter ${i+1} of ${CHAPTERS.length}</span>
+        <span class="dots">${CHAPTERS.map((_,k)=>`<i class="${k<=i?"on":""}"></i>`).join("")}</span></div>
+      <h3>${ch.t}</h3>
+      ${ch.html}
+      <div class="try"><b>Try this:</b> ${ch.tryit}</div>
+      <div class="row">
+        <button class="btn" data-act="chap" data-dir="-1" ${i===0?"disabled":""}>Back</button>
+        ${i<CHAPTERS.length-1? `<button class="btn primary" data-act="chap" data-dir="1">Next chapter</button>`
+          : `<button class="btn primary" data-act="learnDone">${d.learn?"Go to Play":"Finish Learn (+50 XP)"}</button>`}
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row" style="justify-content:space-between"><span class="eyebrow">The Bridge Lab</span>
+        <span class="row"><button class="btn sm ${L.f===1?"on":""}" data-act="freq" data-f="1">Annual</button><button class="btn sm ${L.f===2?"on":""}" data-act="freq" data-f="2">Semiannual</button></span></div>
+      <div class="sliders" style="margin-top:12px">
+        ${slider("c","Coupon",0,12,.25,L.c*100,"%")}
+        ${slider("y","YTM",0.25,15,.25,L.y*100,"%")}
+        ${slider("n","Maturity",1,30,1,L.n," yrs")}
+      </div>
+      <div id="labOut"></div>
+    </div>
+  </div>`;
+}
+function slider(k,label,min,max,step,val,unit){
+  return `<div class="sl"><label for="sl-${k}">${label}<b id="slv-${k}">${fmt(val,k==="n"?0:2)}${unit}</b></label>
+    <input type="range" id="sl-${k}" data-inp="lab" data-k="${k}" min="${min}" max="${max}" step="${step}" value="${val}"></div>`;
+}
+function updateLab(){
+  const box=$("#labOut"); if(!box) return; const L=UI.lab, b=bond(L.c,L.y,L.n,L.f);
+  const status = Math.abs(b.P-100)<0.005? ["Par","chip"] : b.P>100? ["Premium","chip bull"] : ["Discount","chip bear"];
+  const dy=0.01, up=bond(L.c,L.y+dy,L.n,L.f).P/b.P-1, dn=bond(L.c,Math.max(0.0001,L.y-dy),L.n,L.f).P/b.P-1;
+  const dur=-b.mod*dy, cvx=0.5*b.conv*dy*dy;
+  box.innerHTML = `
+    <div class="readout">
+      <div><small>Price</small><b>${fmt(b.P)}</b> <span class="${status[1]}">${status[0]}</span></div>
+      <div><small>Macaulay</small><b>${fmt(b.mac)}</b> <span class="dim mono">yrs</span></div>
+      <div><small>Modified</small><b>${fmt(b.mod)}</b></div>
+      <div><small>Convexity</small><b>${fmt(b.conv,1)}</b></div>
+    </div>
+    <div class="svgbox">${beamSVG(L,b)}</div>
+    <p class="figcap">Bars = present value of each cash flow. Triangle = Macaulay duration, the balance point.</p>
+    <div class="svgbox" style="margin-top:14px">${curveSVG(L,b)}</div>
+    <p class="figcap">Solid = actual price. Dashed = duration's straight-line forecast. Shaded = the convexity gap.</p>
+    <table class="shock tbl" style="margin-top:12px"><thead><tr><th>Yield move</th><th>Duration only</th><th>+ Convexity</th><th>Actual</th></tr></thead><tbody>
+      <tr><td>+100 bp</td><td class="n">${sgn(dur*100)}%</td><td class="n">${sgn((dur+cvx)*100)}%</td><td class="n amber">${sgn(up*100)}%</td></tr>
+      <tr><td>−100 bp</td><td class="n">${sgn(-dur*100)}%</td><td class="n">${sgn((-dur+cvx)*100)}%</td><td class="n amber">${sgn(dn*100)}%</td></tr>
+    </tbody></table>`;
+}
+function beamSVG(L,b){
+  const W=560,H=190,x0=36,x1=540,plank=118, N=b.flows.length, maxPV=Math.max(...b.flows.map(f=>f.pv));
+  const X=t=>x0+(t/L.n)*(x1-x0), bw=Math.max(2,Math.min(16,(x1-x0)/N*.55));
+  const step=L.n<=10?1:L.n<=20?2:5; let ticks="";
+  for(let t=0;t<=L.n;t+=step) ticks+=`<text x="${X(t)}" y="${H-6}" text-anchor="middle" font-size="10" fill="var(--dim)" font-family="var(--mono)">${t}</text>`;
+  const bars=b.flows.map(f=>{const h=Math.max(1.5,(f.pv/maxPV)*92); return `<rect x="${X(f.t)-bw/2}" y="${plank-4-h}" width="${bw}" height="${h}" fill="${f.cf>100?"var(--amber)":"var(--dim)"}" opacity="${f.cf>100?1:.75}"/>`;}).join("");
+  const fx=X(b.mac);
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Present value of cash flows balanced on Macaulay duration">
+    ${bars}
+    <rect x="${x0-6}" y="${plank-4}" width="${x1-x0+12}" height="5" fill="var(--paper)"/>
+    <polygon points="${fx},${plank+2} ${fx-13},${plank+28} ${fx+13},${plank+28}" fill="var(--amber)"/>
+    <line x1="${x0-6}" x2="${x1+6}" y1="${plank+28}" y2="${plank+28}" stroke="var(--wire)"/>
+    <text x="${Math.min(Math.max(fx,80),x1-60)}" y="${plank+44}" text-anchor="middle" font-size="11" fill="var(--amber)" font-family="var(--mono)">MacDur ${fmt(b.mac)} yrs</text>
+    ${ticks}
+    <text x="${x1}" y="14" text-anchor="end" font-size="10" fill="var(--dim)" font-family="var(--mono)">years →</text>
+  </svg>`;
+}
+function niceStep(r){ const s=[1,2,5,10,20,25,50,100,200]; return s.find(v=>r/v<=6)||500; }
+function curveSVG(L,b){
+  const W=560,H=280,ml=46,mr=14,mt=14,mb=32, ymax=0.16;
+  const pts=[]; for(let k=1;k<=64;k++){ const y=k*0.0025; pts.push([y,bond(L.c,y,L.n,L.f).P]); }
+  const a=Math.max(0.0025,L.y-0.02), z=Math.min(ymax,L.y+0.02), tan=y=>b.P*(1-b.mod*(y-L.y));
+  let lo=Math.min(...pts.map(p=>p[1]),tan(z)), hi=Math.max(...pts.map(p=>p[1]),tan(a));
+  const st=niceStep(hi-lo); lo=Math.max(0,Math.floor(lo/st)*st); hi=Math.ceil(hi/st)*st;
+  const X=y=>ml+(y/ymax)*(W-ml-mr), Y=p=>mt+(hi-p)/(hi-lo)*(H-mt-mb);
+  let grid=""; for(let p=lo;p<=hi+1e-9;p+=st) grid+=`<line x1="${ml}" x2="${W-mr}" y1="${Y(p)}" y2="${Y(p)}" stroke="var(--wire)" stroke-width=".6"/><text x="${ml-6}" y="${Y(p)+3}" text-anchor="end" font-size="10" fill="var(--dim)" font-family="var(--mono)">${p}</text>`;
+  for(let y=0;y<=ymax+1e-9;y+=0.02) grid+=`<text x="${X(y)}" y="${H-12}" text-anchor="middle" font-size="10" fill="var(--dim)" font-family="var(--mono)">${Math.round(y*100)}%</text>`;
+  const path="M"+pts.map(p=>`${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("L");
+  const seg=[]; for(let k=0;k<=24;k++){ const y=a+(z-a)*k/24; seg.push([y,bond(L.c,y,L.n,L.f).P]); }
+  const gap="M"+seg.map(p=>`${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join("L")+"L"+[...seg].reverse().map(p=>`${X(p[0]).toFixed(1)},${Y(tan(p[0])).toFixed(1)}`).join("L")+"Z";
+  return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Price–yield curve with duration tangent">
+    ${grid}
+    <line x1="${X(L.c)}" x2="${X(L.c)}" y1="${mt}" y2="${H-mb}" stroke="var(--wire)" stroke-dasharray="2 3"/>
+    <text x="${X(L.c)+4}" y="${mt+10}" font-size="10" fill="var(--dim)" font-family="var(--mono)">coupon ${fmt(L.c*100,2)}%</text>
+    <path d="${gap}" fill="var(--amber-soft)" stroke="none"/>
+    <path d="${path}" fill="none" stroke="var(--paper)" stroke-width="2"/>
+    <line x1="${X(a)}" y1="${Y(tan(a))}" x2="${X(z)}" y2="${Y(tan(z))}" stroke="var(--amber)" stroke-width="1.6" stroke-dasharray="5 4"/>
+    <circle cx="${X(L.y)}" cy="${Y(b.P)}" r="5" fill="var(--amber)" stroke="var(--ink)" stroke-width="2"/>
+    <text x="${W-mr}" y="${H-1}" text-anchor="end" font-size="10" fill="var(--dim)" font-family="var(--mono)">yield-to-maturity →</text>
+  </svg>`;
+}
+
+// ---------- PLAY ----------
+const DESK = [
+  {id:"cash", name:"Overnight cash",   c:0,    n:0,  f:2, spr:0},
+  {id:"n2",   name:"2Y govt note",     c:.04,  n:2,  f:2, spr:0},
+  {id:"c5",   name:"5Y corporate",     c:.05,  n:5,  f:2, spr:.009},
+  {id:"g10",  name:"10Y govt bond",    c:.042, n:10, f:2, spr:.002},
+  {id:"z30",  name:"30Y zero (strip)", c:0,    n:30, f:2, spr:.004},
+];
+const HEADLINES = {
+  hawk:["Hot CPI print. The governor says patience is not a policy.","Wage growth surprises at 5.1%. Futures price two more hikes.","Oil jumps 12% overnight and breakevens follow."],
+  dove:["Unemployment leaps to 5.4%. The governor looks worried on camera.","Retail sales fall for a third straight month.","A regional lender wobbles. Money stampedes into government bonds."],
+  mixed:["The minutes say both 'vigilant' and 'patient'. Nobody knows what to do.","Inflation in line, growth in line. The market yawns, then twitches."],
+  shockUp:["3:00 a.m. emergency hike. The bridge lights flicker."],
+  shockDn:["Surprise emergency cut, plus bond buying. Phones explode."]
+};
+function newBooth(){
+  const t=[]; for(let k=0;k<3;k++){ const f=pick([1,2]); t.push({c:pick([2,3,4,5,6,7,8])/100, y:(6+Math.floor(Math.random()*30))*0.0025, n:2+Math.floor(Math.random()*9), f, res:null}); }
+  return {tickets:t, i:0, hint:false};
+}
+function newDesk(){
+  const rounds=[]; for(let k=0;k<5;k++){
+    let kind = k===3? pick(["shockUp","shockDn"]) : pick(["hawk","dove","mixed","hawk","dove"]);
+    let mu = {hawk:.5,dove:-.5,mixed:0,shockUp:1.35,shockDn:-1.35}[kind], sd = kind.startsWith("shock")? .15 : .4;
+    let dy = Math.round((mu+sd*gauss())*20)/20/100; // nearest 5 bp
+    if(kind.startsWith("shock") && Math.abs(dy)<0.011) dy = Math.sign(mu)*0.011;
+    rounds.push({kind, head:pick(HEADLINES[kind]), dy, choice:null, est:null, res:null});
+  }
+  return {stage:"brief", base:.04, V:10000000, r:0, rounds, brief:{q1:null,q2:null}, ok:0};
+}
+function deskStats(base){ return DESK.map(d=>{ if(d.id==="cash") return {...d, y:base, P:100, mod:0, conv:0, mac:0}; const y=base+d.spr, b=bond(d.c,y,d.n,d.f); return {...d,y,...b}; }); }
+
+function viewPlay(){
+  if(!UI.play) UI.play={part:S.d[7].booth?"desk":"booth", booth:newBooth(), desk:newDesk()};
+  const P=UI.play;
+  const sw=`<div class="row" style="margin-bottom:16px"><button class="btn sm ${P.part==="booth"?"on":""}" data-act="part" data-p="booth">1 · Pricing Booth${S.d[7].booth?" ✓":""}</button><button class="btn sm ${P.part==="desk"?"on":""}" data-act="part" data-p="desk">2 · Rate Shock Desk${S.d[7].play?" ✓":""}</button></div>`;
+  return sw + (P.part==="booth"? viewBooth() : viewDesk());
+}
+function viewBooth(){
+  const B=UI.play.booth, T=B.tickets[B.i], done=B.tickets.filter(t=>t.res!==null).length, right=B.tickets.filter(t=>t.res&&t.res.ok).length;
+  if(B.i>=3){
+    const won=right>=2;
+    return `<div class="panel stack"><span class="eyebrow">Booth closed</span><h3>${right} of 3 tickets priced</h3>
+      <p>${won? "The desk head nods once. That's practically a hug." : "Two of three is the bar. The tickets reshuffle; try again."}</p>
+      <div class="row">${won?`<button class="btn primary" data-act="part" data-p="desk">On to the Rate Shock Desk</button>`:""}<button class="btn" data-act="boothNew">New tickets</button></div></div>`;
+  }
+  const b=bond(T.c,T.y,T.n,T.f), N=T.n*T.f, r=T.y/T.f*100, pmt=T.c*100/T.f;
+  return `<div class="grid2">
+    <div class="panel stack">
+      <span class="eyebrow">Ticket ${B.i+1} of 3 · Pricing Booth</span>
+      <p class="narr">A client slides a term sheet across the counter. "Price it. I'll wait. Not long."</p>
+      <table class="tbl"><tbody>
+        <tr><td>Coupon</td><td class="n">${fmt(T.c*100,2)}% ${T.f===2?"semiannual":"annual"}</td></tr>
+        <tr><td>Maturity</td><td class="n">${T.n} years</td></tr>
+        <tr><td>YTM</td><td class="n">${fmt(T.y*100,2)}% ${T.f===2?"(bond basis)":""}</td></tr>
+        <tr><td>Face</td><td class="n">100</td></tr>
+      </tbody></table>
+      ${T.res? `<div class="stack"><div class="verdict ${T.res.ok?"bull":"bear"}">${T.res.ok?"Filled":"Off-market"}</div>
+          <p>You quoted <span class="mono">${fmt(T.res.v)}</span>. Fair value is <span class="mono amber">${fmt(b.P)}</span>${T.res.ok?".":`, off by ${fmt(Math.abs(T.res.v-b.P))}.`}</p>
+          <div class="keys">${[`${N} N`,`${fmt(r,4).replace(/\.?0+$/,"")} I/Y`,`${fmt(pmt,3).replace(/\.?0+$/,"")} PMT`,"100 FV","CPT PV"].map(k=>`<kbd>${k}</kbd>`).join("")}</div>
+          <button class="btn primary" data-act="boothNext">${B.i<2?"Next ticket":"Close the booth"}</button></div>`
+        : `<div class="row"><input class="inp" id="boothIn" inputmode="decimal" placeholder="e.g. 98.41" aria-label="Your price"><button class="btn primary" data-act="boothQuote">Quote</button></div>
+           <p class="dim" style="font-size:13px">Tolerance ±0.10. Use the BA II Plus tab if you want the keystrokes for real.</p>
+           <button class="btn sm ghost" data-act="boothHint">${B.hint?"Hide hint":"Hint (no XP penalty)"}</button>
+           ${B.hint?`<div class="try">Per period: N = years × ${T.f}, rate = YTM ÷ ${T.f}, PMT = coupon ÷ ${T.f}. Then <span class="mono">price = Σ PMT/(1+r)^t + 100/(1+r)^N</span>.</div>`:""}`}
+    </div>
+    <div class="panel stack"><span class="eyebrow">Tape</span>
+      <table class="tbl"><thead><tr><th>#</th><th>Bond</th><th>Your quote</th><th>Fair</th></tr></thead><tbody>
+      ${B.tickets.map((t,k)=>`<tr><td>${k+1}</td><td>${fmt(t.c*100,0)}% / ${t.n}y @ ${fmt(t.y*100,2)}%</td><td class="n">${t.res?fmt(t.res.v):"—"}</td><td class="n ${t.res?(t.res.ok?"bull":"bear"):""}">${t.res?fmt(bond(t.c,t.y,t.n,t.f).P):"—"}</td></tr>`).join("")}
+      </tbody></table>
+      <p class="dim" style="font-size:13px">Price 2 of 3 to unlock the <b>Bond Price</b> formula card and open the Rate Shock Desk.</p>
+    </div>
+  </div>`;
+}
+function viewDesk(){
+  const D=UI.play.desk;
+  if(!S.d[7].booth) return `<div class="panel stack"><h3>Desk locked</h3><p>Pass the Pricing Booth first. Nobody trades duration who can't price a bond.</p><button class="btn primary" data-act="part" data-p="booth">Go to the booth</button></div>`;
+  const st=deskStats(D.base), g10=st.find(s=>s.id==="g10");
+  const head=`<div class="row" style="justify-content:space-between;margin-bottom:14px"><span class="eyebrow">Rate Shock Desk · ${D.stage==="brief"?"Morning briefing":D.stage==="end"?"Closing bell":`Round ${D.r+1} of 5`}</span>
+    <span class="mono">Book <b class="${D.V>=1e7?"bull":"bear"}">${money(D.V)}</b> <span class="dim">target &gt; ${money(1e7)}</span></span></div>`;
+  if(D.stage==="brief"){
+    const q1=D.brief.q1, q2=D.brief.q2;
+    return head+`<div class="panel stack">
+      <p class="narr">7:02 a.m. The head of rates doesn't look up. "Before I give you ten million of the firm's money, two questions."</p>
+      <p>The ${g10.name} pays ${fmt(g10.c*100,1)}% semiannually, yields ${fmt(g10.y*100,2)}% and has a Macaulay duration of <b class="mono">${fmt(g10.mac,3)}</b> years.</p>
+      <div class="stack"><b>1. What is its modified duration?</b>
+        ${q1? `<p class="${q1.ok?"bull":"bear"}">${q1.ok?"Correct":"Not quite"}: ${fmt(g10.mac,3)} ÷ (1 + ${fmt(g10.y*100,2)}% ÷ 2) = <b class="mono">${fmt(g10.mod,3)}</b></p>`
+             : `<div class="row"><input class="inp" id="b1" inputmode="decimal" placeholder="ModDur" aria-label="Modified duration"><button class="btn primary" data-act="brief1">Answer</button></div>`}</div>
+      ${q1? `<div class="stack"><b>2. If the whole $10,000,000 book sat in this bond, what is its PVBP (dollar value of 1 bp)?</b>
+        ${q2? `<p class="${q2.ok?"bull":"bear"}">${q2.ok?"Correct":"Not quite"}: ${fmt(g10.mod,3)} × $10,000,000 × 0.0001 = <b class="mono">${money(g10.mod*1e3)}</b> per basis point.</p>
+               <button class="btn primary" data-act="deskStart">Open the desk</button>`
+             : `<div class="row"><input class="inp" id="b2" inputmode="decimal" placeholder="$ per bp" aria-label="PVBP in dollars"><button class="btn primary" data-act="brief2">Answer</button></div>`}</div>`:""}
+    </div>`;
+  }
+  if(D.stage==="end"){
+    const won=D.V>1e7;
+    return head+`<div class="panel stack"><h3>${won?"You beat the market's mood swings":"The book finished underwater"}</h3>
+      <p class="big ${won?"bull":"bear"}">${money(D.V)}</p>
+      <p>${won? "Five headlines, five decisions, money up. The head of rates finally learns your name." : "Duration is a bet on rates. Read the headline, then size the bet: short when hawks circle, long when doves land."}</p>
+      <p class="dim">Accurate estimates: ${D.ok} of ${D.rounds.filter(r=>r.choice!=="cash").length}</p>
+      <div class="row"><button class="btn primary" data-act="deskNew">Run another day</button>${won?`<button class="btn" data-act="tab" data-t="test">Take the test</button>`:""}</div></div>`;
+  }
+  const R=D.rounds[D.r];
+  if(D.stage==="pick"){
+    return head+`<div class="stack">
+      <div class="headline">${R.head}</div>
+      <p class="dim">The move hits after you commit. Put the whole book in one position. Base government yield now: <span class="mono">${fmt(D.base*100,2)}%</span>.</p>
+      <div class="panel tablewrap" style="padding:0"><table class="desk"><thead><tr><th>Position</th><th>Yield</th><th>Price</th><th>ModDur</th><th>Convexity</th><th></th></tr></thead><tbody>
+      ${st.map(s=>`<tr class="pick" data-act="deskPick" data-id="${s.id}"><td><b>${s.name}</b></td><td class="n">${fmt(s.y*100,2)}%</td><td class="n">${s.id==="cash"?"—":fmt(s.P)}</td><td class="n">${fmt(s.mod)}</td><td class="n">${fmt(s.conv,1)}</td><td><button class="btn sm" data-act="deskPick" data-id="${s.id}">Buy</button></td></tr>`).join("")}
+      </tbody></table></div></div>`;
+  }
+  const pos=st.find(s=>s.id===R.choice), dyb=Math.round(R.dy*10000);
+  if(D.stage==="est"){
+    return head+`<div class="grid2"><div class="panel stack">
+      <div class="headline">${R.head}</div>
+      <p>Yields move <b class="mono ${dyb>0?"bear":"bull"}">${dyb>0?"+":"−"}${Math.abs(dyb)} bp</b>. You hold the <b>${pos.name}</b>: ModDur <span class="mono">${fmt(pos.mod)}</span>, convexity <span class="mono">${fmt(pos.conv,1)}</span>.</p>
+      <b>Estimate your position's % price change before the desk reprices it.</b>
+      <div class="row"><input class="inp" id="estIn" inputmode="decimal" placeholder="e.g. −4.25" aria-label="Estimated percent change"><span class="mono dim">%</span><button class="btn primary" data-act="deskEst">Submit estimate</button></div>
+      <p class="dim" style="font-size:13px">Within ±0.15 percentage points earns +15 XP. Use convexity when the move is big.</p>
+    </div><div class="panel"><span class="eyebrow">Reminder</span><div class="formula" style="margin-top:8px">%ΔP ≈ −ModDur·Δy + ½·Convexity·(Δy)²</div><p class="dim" style="margin-top:8px;font-size:13px">Δy in decimals: 75 bp = 0.0075.</p></div></div>`;
+  }
+  // result
+  return head+`<div class="panel stack">
+    <div class="headline">${R.head}</div>
+    <table class="tbl"><tbody>
+      <tr><td>Yield move</td><td class="n">${dyb>0?"+":"−"}${Math.abs(dyb)} bp</td></tr>
+      <tr><td>Position</td><td class="n">${pos.name}</td></tr>
+      ${R.choice!=="cash"?`<tr><td>Your estimate</td><td class="n">${sgn(R.est)}%</td></tr>
+      <tr><td>Duration only</td><td class="n">${sgn(R.res.durOnly)}%</td></tr>
+      <tr><td>Duration + convexity</td><td class="n">${sgn(R.res.full)}%</td></tr>`:""}
+      <tr><td>Actual repricing</td><td class="n amber">${sgn(R.res.actual)}%</td></tr>
+      <tr><td>P&amp;L</td><td class="n ${R.res.pnl>=0?"bull":"bear"}">${R.res.pnl>=0?"+":""}${money(R.res.pnl)}</td></tr>
+    </tbody></table>
+    <p class="${R.res.ok?"bull":"dim"}">${R.choice==="cash"?"Cash doesn't move. Safe, and a little dull." : R.res.ok?"Your estimate was on the money (+15 XP).":"Estimate outside tolerance. Check the sign and whether convexity mattered."}</p>
+    <button class="btn primary" data-act="deskNext">${D.r<4?"Next headline":"Ring the closing bell"}</button>
+  </div>`;
+}
+
+// ---------- TEST / shared question renderer ----------
+function newRun(ids, mode){ return {mode, qs:ids, i:0, pick:null, conf:60, revealed:false, results:[], t0:Date.now()}; }
+function confLabel(c){ return c<=40?"Guessing":c<=60?"Leaning":c<=85?"Fairly sure":"Certain"; }
+function qHTML(q, run, feedback){
+  const rev=run.revealed && feedback;
+  const opts=Object.entries(q.options).map(([k,t])=>{
+    let cls="opt"; if(run.pick===k) cls+=" sel";
+    if(rev){ if(k===q.answer) cls="opt right"; else if(run.pick===k) cls="opt wrong"; }
+    return `<button class="${cls}" data-act="qpick" data-k="${k}" ${run.revealed?"disabled":""}><span class="k">${k}</span><span>${t}</span>${rev?`<span class="why">${q.explanation[k]}</span>`:""}</button>`;
+  }).join("");
+  const last=run.results[run.results.length-1];
+  return `<div class="q">
+    <div class="qmeta"><span class="chip amber">Q${run.i+1} / ${run.qs.length}</span><span class="chip">${q.difficulty}</span><span class="chip">${TAGS[q.tag].label}</span></div>
+    <p class="vignette">${q.vignette}</p>
+    <div class="opts">${opts}</div>
+    ${!run.revealed?`<div class="conf"><label for="confIn">How sure are you? <b id="confLbl">${run.conf}% · ${confLabel(run.conf)}</b></label>
+      <input type="range" id="confIn" data-inp="conf" min="34" max="100" step="1" value="${run.conf}">
+      <span class="dim" style="font-size:12px">34% = pure guess among three. Being right <em>and</em> calibrated scores best.</span></div>
+      <div class="row"><button class="btn primary" data-act="qlock" ${run.pick?"":"disabled"}>Lock it in</button></div>`
+    : feedback? `<div class="stack">
+      <div class="verdict ${last.ok?"bull":"bear"}">${last.ok?"Correct":"Wrong"} <span class="mono dim" style="font-size:14px;text-transform:none">${last.xp?"+"+last.xp+" XP":"0 XP"} · confidence ${Math.round(last.c*100)}%</span></div>
+      ${!last.ok && last.c>=.8?`<p class="bear">Confident and wrong. That's the expensive kind; this tag is now on your weak-spot list.</p>`:""}
+      ${q.keys?`<div class="keys"><span class="eyebrow">BA II Plus</span>${q.keys.map(k=>`<kbd>${k}</kbd>`).join("")}</div>`:""}
+      <div class="row"><button class="btn primary" data-act="qnext">${run.i<run.qs.length-1?"Next question":"See results"}</button></div></div>` : ""}
+  </div>`;
+}
+function recordAnswer(q, pickK, conf, mode){
+  const ok=pickK===q.answer, c=conf/100, cn=Math.max(0,(c-.34)/.66), mult={easy:1,medium:1.5,hard:2}[q.difficulty];
+  let xp = ok? Math.round(10*mult*(.75+.75*cn)) : 0;
+  if(ok){ S.streak++; S.bestStreak=Math.max(S.bestStreak,S.streak); if(S.streak%5===0){ xp+=10; toast("Streak ×"+S.streak,"+10 XP bonus. The floor is starting to notice."); } }
+  else S.streak=0;
+  S.log.push({q:q.id, ok, c, s:S.session, m:mode});
+  const t=S.tags[q.tag]||{miss:0,hit:0,box:0,due:null,mastered:false};
+  if(!ok){ t.miss++; t.box=0; t.due=S.session+1; t.mastered=false; }
+  else { t.hit++; if(mode==="review"){ t.box++; if(t.box>=3){ t.mastered=true; t.due=null; } else t.due=S.session+[1,3,7][t.box]; } }
+  if(!ok || S.tags[q.tag]) S.tags[q.tag]=t;
+  addXP(xp); renderBar();
+  return {ok, xp, c, q:q.id, tag:q.tag};
+}
+function viewTest(){
+  const d=S.d[7];
+  if(!UI.test || UI.test.mode!=="test"){
+    return `<div class="panel stack"><span class="eyebrow">Bond Bridge · Test</span><h3>Ten vignettes. Three options each.</h3>
+      <p>Pick an answer, set your confidence, lock it in. Wrong answers tag the concept for the Review Boss. Confident wrong answers cost the most calibration.</p>
+      <table class="tbl" style="max-width:420px"><tbody><tr><td>Mix</td><td class="n">3 easy · 4 medium · 3 hard</td></tr><tr><td>Calculation items</td><td class="n">3 (with BA II Plus keys)</td></tr><tr><td>Best score</td><td class="n">${d.testBest==null?"—":pct(d.testBest)}</td></tr></tbody></table>
+      <div class="row"><button class="btn primary" data-act="testStart">${d.tests?"Retake test":"Start test"}</button></div></div>`;
+  }
+  const run=UI.test;
+  if(run.i>=run.qs.length) return runSummary(run);
+  return `<div class="panel">${qHTML(QUESTIONS.find(q=>q.id===run.qs[run.i]), run, true)}</div>`;
+}
+function runSummary(run, title){
+  const R=run.results, ok=R.filter(r=>r.ok).length, br=R.reduce((s,r)=>s+Math.pow(r.c-(r.ok?1:0),2),0)/Math.max(1,R.length);
+  const missed=[...new Set(R.filter(r=>!r.ok).map(r=>r.tag))];
+  return `<div class="panel stack"><span class="eyebrow">${title||"Test complete"}</span>
+    <div class="row" style="gap:28px"><div><div class="big ${ok/R.length>=.7?"bull":"bear"}">${ok} / ${R.length}</div><span class="dim mono">score</span></div>
+    <div><div class="big">${Math.round(100*(1-br))}</div><span class="dim mono">calibration</span></div>
+    <div><div class="big amber">+${R.reduce((s,r)=>s+r.xp,0)}</div><span class="dim mono">XP</span></div></div>
+    ${missed.length?`<div><b>Tagged for review:</b> ${missed.map(t=>`<span class="chip bear">${TAGS[t].label}</span>`).join(" ")}</div>`:`<p class="bull">Clean sheet. No new weak spots.</p>`}
+    ${run.mode!=="test"? reviewList(run):""}
+    <div class="row">${run.mode==="test"?`<button class="btn primary" data-act="testStart">Retake test</button>`:""}<button class="btn ${run.mode==="test"?"":"primary"}" data-act="go" data-v="hub">Back to the city</button>${missed.length?`<button class="btn" data-act="go" data-v="weak">See weak spots</button>`:""}</div></div>`;
+}
+function reviewList(run){
+  return `<details><summary class="btn sm" style="display:inline-block">Review every answer</summary><div class="stack" style="margin-top:12px">${run.results.map((r,k)=>{const q=QUESTIONS.find(x=>x.id===r.q);
+    return `<div class="panel" style="background:var(--ink)"><div class="qmeta"><span class="chip ${r.ok?"bull":"bear"}">${r.ok?"Right":"Wrong"}</span><span class="chip">${TAGS[q.tag].label}</span></div>
+    <p style="margin-top:8px">${q.vignette}</p><p style="margin-top:6px">You: <b>${r.pick||"no answer"}</b> · Correct: <b class="bull">${q.answer}</b></p>
+    <p class="dim" style="margin-top:6px">${q.explanation[q.answer]}</p></div>`;}).join("")}</div></details>`;
+}
+
+/* =====================================================================
+   FORMULA CARDS · WEAK SPOTS · REVIEW BOSS
+   ===================================================================== */
+function viewCards(){
+  return `<div class="stack"><span class="eyebrow">Binder</span><h2>Formula <span class="amber">Cards</span></h2>
+  <p class="lede">Cards can't be read into your binder. They unlock only when you use the formula under pressure in a mini-game.</p>
+  <div class="cards">${CARDS.map(c=>{const got=S.cards.includes(c.id);
+    return `<div class="fcard ${got?"got":"lock"}"><div class="row" style="justify-content:space-between"><span class="eyebrow">District 07</span><span class="chip ${got?"amber":""}">${got?"Unlocked":"Locked"}</span></div>
+      <div class="fname">${c.name}</div>
+      ${got?`<div class="formula">${c.f}</div><p style="font-size:14px">${c.gist}</p>${c.keys.length?`<div class="keys">${c.keys.map(k=>`<kbd>${k}</kbd>`).join("")}</div>`:""}`
+           :`<p class="dim" style="font-size:14px">How to unlock: ${c.how}</p>`}</div>`;}).join("")}
+    <div class="fcard lock"><span class="eyebrow">Districts 01–06, 08–10</span><div class="fname">${FUTURE_CARDS} more cards</div><p class="dim" style="font-size:14px">Five per district. They arrive as each district opens.</p></div>
+  </div></div>`;
+}
+function dueTags(all){ return Object.entries(S.tags).filter(([k,t])=>!t.mastered && t.due!=null && (all || t.due<=S.session)).map(([k])=>k); }
+function viewWeak(){
+  const rows=Object.entries(S.tags);
+  return `<div class="stack"><span class="eyebrow">Weak-spot tracker · spaced repetition</span><h2>Weak <span class="amber">Spots</span></h2>
+  <p class="lede">A miss schedules the concept for the next session. Beat it in the Review Boss and it comes back in 3 sessions, then 7, then it's mastered. One session stands in for one day.</p>
+  <div class="row"><button class="btn primary" data-act="go" data-v="review" ${dueTags().length?"":"disabled"}>Fight the Review Boss (${dueTags().length} due)</button>
+    <button class="btn" data-act="advance">Close the day → session ${S.session+1}</button></div>
+  <div class="panel tablewrap">${rows.length?`<table class="tbl"><thead><tr><th>Concept</th><th>LOS</th><th>Misses</th><th>Stage</th><th>Status</th></tr></thead><tbody>
+    ${rows.sort((a,b)=>(a[1].due||1e9)-(b[1].due||1e9)).map(([k,t])=>{const status=t.mastered?`<span class="chip bull">Mastered</span>`:t.due<=S.session?`<span class="chip bear">Due now</span>`:`<span class="chip">In ${t.due-S.session} session${t.due-S.session>1?"s":""}</span>`;
+      return `<tr><td><b>${TAGS[k].label}</b><br><span class="mono dim" style="font-size:11px">${k}</span></td><td style="max-width:360px">${TAGS[k].los}</td><td class="n">${t.miss}</td><td class="n">${t.mastered?"—":["1-day","3-day","7-day"][t.box]||"—"}</td><td>${status}</td></tr>`;}).join("")}
+    </tbody></table>`:`<p class="dim">No weak spots yet. Either you're brilliant or you haven't taken a test.</p>`}</div></div>`;
+}
+function viewReview(){
+  const R=UI.review;
+  if(!R){
+    const due=dueTags();
+    if(!due.length) return `<div class="panel stack"><h3>The Review Boss is asleep</h3><p>Nothing is due this session. Close the day from Weak Spots to move the calendar forward.</p><button class="btn" data-act="go" data-v="weak">Weak spots</button></div>`;
+    const pool=shuffle(QUESTIONS.filter(q=>due.includes(q.tag))).slice(0,6);
+    UI.review={...newRun(pool.map(q=>q.id),"review"), hp:100};
+  }
+  const run=UI.review;
+  const bar=`<div class="row" style="justify-content:space-between"><span class="eyebrow">Review Boss · The Margin Clerk</span><span class="mono">HP ${Math.max(0,Math.round(run.hp))}</span></div>
+    <div class="boss" style="margin:8px 0 16px"><i style="width:${Math.max(0,run.hp)}%"></i></div>`;
+  if(run.i>=run.qs.length){
+    const won=run.hp<=0;
+    return `<div class="panel">${bar}<h3 class="${won?"bull":"bear"}">${won?"The clerk files you under 'competent'":"The clerk survives to audit another day"}</h3></div><div style="margin-top:14px">${runSummary(run,"Review complete")}</div>`;
+  }
+  return `<div class="panel">${bar}<p class="narr" style="margin-bottom:14px">"Every concept you fumbled, I keep in a ledger." Right and sure deals heavy damage. Wrong and sure heals him.</p>${qHTML(QUESTIONS.find(q=>q.id===run.qs[run.i]), run, true)}</div>`;
+}
+
+/* =====================================================================
+   BA II PLUS TRAINER (TVM worksheet)
+   ===================================================================== */
+const DRILLS = [
+  {id:"d1", title:"Price a 3-year, 6% annual-pay bond at a 5% YTM.", target:"PV", R:{N:3,I:5,PMT:6,FV:100,PV:0}, keys:["2ND FV (CLR TVM)","3 N","5 I/Y","6 PMT","100 FV","CPT PV"]},
+  {id:"d2", title:"A 5-year, 4% annual-pay bond trades at 95.00. Find its YTM.", target:"I", R:{N:5,PV:-95,PMT:4,FV:100,I:0}, keys:["2ND FV (CLR TVM)","5 N","95 +/− PV","4 PMT","100 FV","CPT I/Y"]},
+  {id:"d3", title:"Price a 4-year, 5% semiannual bond at a 6% YTM.", target:"PV", R:{N:8,I:3,PMT:2.5,FV:100,PV:0}, keys:["2ND FV (CLR TVM)","8 N","3 I/Y","2.5 PMT","100 FV","CPT PV"]},
+];
+DRILLS.forEach(d=>d.ans=tvm(d.target,d.R));
+function calcState(){ if(!UI.calc) UI.calc={disp:"0", entering:false, second:false, cpt:false, label:"", R:{N:0,I:0,PV:0,PMT:0,FV:0}, acc:null, op:null, tape:[], drill:0, show:false}; return UI.calc; }
+function viewCalc(){
+  const C=calcState(), D=DRILLS[C.drill];
+  const K=(l,k,cls="")=>`<button class="key ${cls}" data-act="key" data-k="${k}">${l}</button>`;
+  return `<div class="stack"><span class="eyebrow">Calculator Trainer · TVM worksheet</span><h2>BA II <span class="amber">Plus</span></h2>
+  <p class="lede">Same keys, same sign convention as the real thing: cash you pay out is negative. P/Y is fixed at 1 here, so enter rates and periods per coupon period.</p>
+  <div class="calcwrap">
+    <div class="calc">
+      <div class="lcd"><div class="flags"><span>${C.second?"2ND":""}</span><span>${C.cpt?"COMPUTE":""}</span><span>${C.op?"OP "+C.op:""}</span></div>
+        <div class="val" id="lcd">${C.label?C.label+"=":""}${C.disp}</div></div>
+      <div class="pad">
+        ${K("2ND","2ND","second")}${K("CPT","CPT","cpt")}${K("ENTER","ENTER")}${K("CE/C","CE")}${K("+/−","NEG")}
+        ${K("N","N","tvm")}${K("I/Y","I","tvm")}${K("PV","PV","tvm")}${K("PMT","PMT","tvm")}${K(C.second?"CLR TVM":"FV","FV","tvm")}
+        ${K("7","7","num")}${K("8","8","num")}${K("9","9","num")}${K("÷","/")}${K("×","*")}
+        ${K("4","4","num")}${K("5","5","num")}${K("6","6","num")}${K("−","-")}${K("+","+")}
+        ${K("1","1","num")}${K("2","2","num")}${K("3","3","num")}${K(".",".","num")}${K("0","0","num")}
+        ${K("=","=")}${K("RCL N","RN")}${K("RCL I/Y","RI")}${K("RCL PV","RPV")}${K("RCL FV","RFV")}
+      </div>
+    </div>
+    <div class="stack" style="min-width:0">
+      <div class="panel stack"><div class="row" style="justify-content:space-between"><span class="eyebrow">Drill ${C.drill+1} of ${DRILLS.length}</span><span class="chip ${S.drills.includes(D.id)?"bull":""}">${S.drills.includes(D.id)?"Cleared":"Open"}</span></div>
+        <h3>${D.title}</h3>
+        <p class="dim">Finish with <kbd>CPT</kbd> <kbd>${D.target==="I"?"I/Y":D.target}</kbd>. A correct compute clears the drill (+20 XP).</p>
+        <div class="row"><button class="btn sm" data-act="drillKeys">${C.show?"Hide keystrokes":"Show keystrokes"}</button>
+          ${DRILLS.map((d,k)=>`<button class="btn sm ${k===C.drill?"on":""}" data-act="drill" data-i="${k}">${k+1}</button>`).join("")}</div>
+        ${C.show?`<div class="keys">${D.keys.map(k=>`<kbd>${k}</kbd>`).join("")}</div>`:""}
+      </div>
+      <div class="panel"><span class="eyebrow">Registers</span>
+        <table class="tbl" style="margin-top:6px"><tbody>${["N","I","PV","PMT","FV"].map(r=>`<tr><td>${r==="I"?"I/Y":r}</td><td class="n">${fmt(C.R[r],4)}</td></tr>`).join("")}</tbody></table></div>
+      <div class="panel"><span class="eyebrow">Tape</span><div class="tape" style="margin-top:8px">${C.tape.length?C.tape.slice(-40).join(" "):"Keys you press appear here."}</div>
+        <p class="dim" style="font-size:12px;margin-top:8px">NPV, IRR and the statistics worksheet arrive with the CFO's Desk and The Data Lab.</p></div>
+    </div>
+  </div></div>`;
+}
+function calcKey(k){
+  const C=calcState(), lbl={N:"N",I:"I/Y",PV:"PV",PMT:"PMT",FV:"FV"};
+  C.tape.push({NEG:"+/−",I:"I/Y",CE:"CE/C",RN:"RCL N",RI:"RCL I/Y",RPV:"RCL PV",RFV:"RCL FV"}[k]||(k==="FV"&&C.second?"CLR-TVM":k));
+  const cur=()=>parseFloat(C.disp)||0, show=v=>{ C.disp=isFinite(v)? String(Math.round(v*1e6)/1e6) : "Error"; C.entering=false; };
+  if(/^[0-9]$/.test(k)||k==="."){ if(!C.entering){C.disp=k==="."?"0.":k;C.entering=true;C.label="";} else if(C.disp.length<12 && !(k==="."&&C.disp.includes("."))) C.disp+=k; return refreshCalc(); }
+  if(k==="NEG"){ C.disp = C.disp.startsWith("-")? C.disp.slice(1) : (C.disp==="0"?"0":"-"+C.disp); return refreshCalc(); }
+  if(k==="CE"){ C.disp="0"; C.entering=false; C.acc=null; C.op=null; C.label=""; C.second=false; C.cpt=false; return refreshCalc(); }
+  if(k==="2ND"){ C.second=!C.second; return refreshCalc(); }
+  if(k==="CPT"){ C.cpt=true; return refreshCalc(); }
+  if(k==="ENTER"){ C.entering=false; return refreshCalc(); }
+  if(["+","-","*","/"].includes(k)){ C.acc=cur(); C.op=k; C.entering=false; return refreshCalc(); }
+  if(k==="="){ if(C.op!=null){ const a=C.acc,b=cur(); show({"+":a+b,"-":a-b,"*":a*b,"/":a/b}[C.op]); C.op=null; C.label=""; } return refreshCalc(); }
+  if(k.startsWith("R")){ const r={RN:"N",RI:"I",RPV:"PV",RFV:"FV"}[k]; show(C.R[r]); C.label=lbl[r]; return refreshCalc(); }
+  if(lbl[k]){
+    if(k==="FV" && C.second){ C.R={N:0,I:0,PV:0,PMT:0,FV:0}; C.second=false; C.disp="0"; C.label=""; C.entering=false; return refreshCalc(); }
+    C.second=false;
+    if(C.cpt){ C.cpt=false; const v=tvm(k,C.R); C.R[k]=isFinite(v)?v:C.R[k]; show(v); C.label=lbl[k]; checkDrill(k,v); }
+    else { C.R[k]=cur(); C.label=lbl[k]; C.entering=false; C.disp=String(C.R[k]); }
+    return refreshCalc();
+  }
+}
+function checkDrill(k,v){
+  const C=calcState(), D=DRILLS[C.drill];
+  if(k===D.target && isFinite(v) && Math.abs(v-D.ans) < (k==="I"?0.005:0.01)){
+    if(!S.drills.includes(D.id)){ S.drills.push(D.id); addXP(20); toast("Drill cleared", D.title+" Answer "+fmt(v,2)+"."); }
+  }
+}
+function refreshCalc(){ if(UI.view==="calc") $("#main").innerHTML=viewCalc(); }
+
+/* =====================================================================
+   EXAM MODE (timed, weighted by official topic weights)
+   ===================================================================== */
+let examTimer=null;
+function examPlan(n){
+  const avail=DISTRICTS.filter(d=>QUESTIONS.some(q=>q.topic===d.id));
+  const tot=avail.reduce((s,d)=>s+(d.w[0]+d.w[1])/2,0);
+  let alloc=avail.map(d=>({d, k:Math.round(n*((d.w[0]+d.w[1])/2)/tot)}));
+  let diff=n-alloc.reduce((s,a)=>s+a.k,0); alloc.sort((a,b)=>(b.d.w[0]+b.d.w[1])-(a.d.w[0]+a.d.w[1]));
+  for(let i=0; diff!==0 && alloc.length; i=(i+1)%alloc.length){ const st=Math.sign(diff); if(alloc[i].k+st>=0){ alloc[i].k+=st; diff-=st; } }
+  let ids=[]; alloc.forEach(a=>{ ids=ids.concat(shuffle(QUESTIONS.filter(q=>q.topic===a.d.id)).slice(0,a.k).map(q=>q.id)); });
+  return shuffle(ids);
+}
+function viewExam(){
+  const E=UI.exam;
+  if(!E){
+    const avail=DISTRICTS.filter(d=>QUESTIONS.some(q=>q.topic===d.id)), max=QUESTIONS.length;
+    return `<div class="stack"><span class="eyebrow">Exam mode · 90 seconds per question</span><h2>Exam <span class="amber">Hall</span></h2>
+    <p class="lede">Timed, no feedback until the end, questions drawn by the official topic weights from every district that's open. Run out the clock and the question counts as wrong.</p>
+    <div class="panel tablewrap"><table class="tbl"><thead><tr><th>Topic</th><th>Official weight</th><th>Bank</th></tr></thead><tbody>
+      ${DISTRICTS.map(d=>{const n=QUESTIONS.filter(q=>q.topic===d.id).length; return `<tr><td>${d.topic}</td><td class="n">${d.w[0]}–${d.w[1]}%</td><td class="n ${n?"amber":"dim"}">${n?n+" questions":"locked"}</td></tr>`;}).join("")}
+    </tbody></table></div>
+    <p class="dim">Only ${avail.map(d=>d.topic).join(", ")} is open, so today's mock is a ${max}-question Fixed Income sprint. The weighting kicks in as districts unlock.</p>
+    <div class="row"><button class="btn primary" data-act="examStart" data-n="${Math.min(10,max)}">Start ${Math.min(10,max)}-question mock (${Math.min(10,max)*1.5} min)</button></div></div>`;
+  }
+  if(E.i>=E.qs.length) return `<div class="stack">${runSummary(E,"Mock exam complete")}</div>`;
+  return `<div class="panel"><div class="row" style="justify-content:space-between;margin-bottom:12px"><span class="eyebrow">Mock exam</span><span class="timer ${E.left<=15?"low":""}" id="timer">${E.left}s</span></div>${qHTML(QUESTIONS.find(q=>q.id===E.qs[E.i]),E,false)}</div>`;
+}
+function examTick(){
+  clearInterval(examTimer); const E=UI.exam; if(!E||E.i>=E.qs.length) return;
+  examTimer=setInterval(()=>{ if(UI.view!=="exam"||!UI.exam){clearInterval(examTimer);return;} E.left--; const el=$("#timer"); if(el){ el.textContent=E.left+"s"; el.classList.toggle("low",E.left<=15); }
+    if(E.left<=0){ lockAnswer(E,true); } },1000);
+}
+
+/* =====================================================================
+   ANSWER FLOW
+   ===================================================================== */
+function activeRun(){ return UI.view==="exam"?UI.exam : UI.view==="review"?UI.review : UI.test; }
+function lockAnswer(run, timeout){
+  const q=QUESTIONS.find(x=>x.id===run.qs[run.i]);
+  const r=recordAnswer(q, run.pick, run.conf, run.mode); r.pick=run.pick; run.results.push(r);
+  if(run.mode==="review"){ const dmg=100/run.qs.length*(r.ok?(1+(r.c-.34)):0) ; run.hp-=dmg; if(!r.ok && r.c>=.75) run.hp=Math.min(100,run.hp+12); }
+  if(run.mode==="exam"){ run.i++; run.pick=null; run.left=90; if(timeout) toast("Time","Question counted as wrong."); render(); if(run.i<run.qs.length) examTick(); else finishRun(run); return; }
+  run.revealed=true; render();
+}
+function finishRun(run){
+  if(run.mode==="test"){ const d=S.d[7], sc=run.results.filter(r=>r.ok).length/run.results.length; d.tests++; d.testBest=Math.max(d.testBest||0,sc); if(sc>=.7) toast("District test passed",`${Math.round(sc*100)}%. Bond Bridge stands.`); }
+  if(run.mode==="review" && run.hp<=0) addXP(40);
+  renderBar();
+}
+
+/* =====================================================================
+   SAVE / LOAD
+   ===================================================================== */
+function exportCode(){ return "WSQ1." + btoa(unescape(encodeURIComponent(JSON.stringify(S)))); }
+function importCode(code){
+  const raw=code.trim().replace(/^WSQ1\./,""); const obj=JSON.parse(decodeURIComponent(escape(atob(raw))));
+  if(!obj || obj.v!==1 || typeof obj.xp!=="number") throw new Error("not a Wall Street Quest code");
+  const base=freshState(); S={...base, ...obj, d:{...base.d, ...obj.d}}; S.d[7]={...base.d[7], ...(obj.d&&obj.d[7])};
+  S.session+=1; UI.test=UI.review=UI.exam=UI.play=null;
+}
+function openSave(msg){
+  $("#modalRoot").innerHTML=`<div class="scrim" data-act="closeModal"><div class="modal" role="dialog" aria-label="Save or load progress" data-stop="1">
+    <h3>Save / load progress</h3>
+    <p class="dim">Progress lives only in this tab. Copy the code below to keep it; paste a code to resume. Loading a code starts a new session (one simulated day), which moves your review schedule forward.</p>
+    <label class="eyebrow" for="expCode">Your progress code</label>
+    <textarea id="expCode" readonly>${exportCode()}</textarea>
+    <div class="row"><button class="btn primary" data-act="copyCode">Copy code</button><span id="copyMsg" class="dim mono"></span></div>
+    <label class="eyebrow" for="impCode">Load a code</label>
+    <textarea id="impCode" placeholder="Paste a WSQ1. code here"></textarea>
+    <div class="row"><button class="btn" data-act="doImport">Load progress</button><span class="${msg&&msg.bad?"bear":"bull"} mono">${msg?msg.t:""}</span></div>
+    <div class="row" style="justify-content:flex-end"><button class="btn ghost" data-act="closeModal">Close</button></div>
+  </div></div>`;
+}
+
+/* =====================================================================
+   ROUTER + EVENTS
+   ===================================================================== */
+function render(){
+  renderBar();
+  const v=UI.view, m=$("#main");
+  m.innerHTML = v==="hub"?viewHub() : v==="district"?viewDistrict() : v==="cards"?viewCards() : v==="weak"?viewWeak() : v==="review"?viewReview() : v==="calc"?viewCalc() : viewExam();
+  if(v==="hub") drawSky();
+  if(v==="district" && UI.tab==="learn") updateLab();
+}
+const ACT = {
+  go:a=>{ const v=a.dataset.v; UI.view=v;
+    if(v==="review" && UI.review && UI.review.i>=UI.review.qs.length) UI.review=null;
+    if(v==="exam" && UI.exam && UI.exam.i>=UI.exam.qs.length) UI.exam=null;
+    render(); window.scrollTo(0,0);
+    if(v==="exam" && UI.exam) examTick(); },
+  open:a=>{ UI.view="district"; UI.tab=S.d[7].learn?(S.d[7].play?"test":"play"):"learn"; render(); window.scrollTo(0,0); },
+  tab:a=>{ UI.view="district"; UI.tab=a.dataset.t; render(); },
+  chap:a=>{ const d=S.d[7]; d.step=Math.max(0,Math.min(CHAPTERS.length-1,d.step+(+a.dataset.dir))); render(); },
+  learnDone:()=>{ const d=S.d[7]; if(!d.learn){ d.learn=true; addXP(50); toast("Learn complete","Bond Bridge · +50 XP"); } UI.tab="play"; render(); },
+  freq:a=>{ UI.lab.f=+a.dataset.f; render(); },
+  part:a=>{ UI.play.part=a.dataset.p; render(); },
+  boothHint:()=>{ UI.play.booth.hint=!UI.play.booth.hint; render(); },
+  boothNew:()=>{ UI.play.booth=newBooth(); render(); },
+  boothQuote:()=>{ const B=UI.play.booth, T=B.tickets[B.i], v=num($("#boothIn").value); if(!isFinite(v)) return toast("Enter a price","A number like 98.41."); const fair=bond(T.c,T.y,T.n,T.f).P, ok=Math.abs(v-fair)<=0.10; T.res={v,ok}; if(ok) addXP(15); render(); },
+  boothNext:()=>{ const B=UI.play.booth; B.i++; B.hint=false; if(B.i>=3){ const right=B.tickets.filter(t=>t.res&&t.res.ok).length; if(right>=2){ unlockCard("fi.price"); if(!S.d[7].booth){ S.d[7].booth=true; addXP(30);} } } render(); },
+  brief1:()=>{ const D=UI.play.desk, g=deskStats(D.base).find(s=>s.id==="g10"), v=num($("#b1").value); if(!isFinite(v)) return; const ok=Math.abs(v-g.mod)<=0.02; D.brief.q1={ok}; if(ok){ unlockCard("fi.moddur"); addXP(10);} render(); },
+  brief2:()=>{ const D=UI.play.desk, g=deskStats(D.base).find(s=>s.id==="g10"), v=num($("#b2").value); if(!isFinite(v)) return; const t=g.mod*1e3, ok=Math.abs(v-t)/t<=0.03; D.brief.q2={ok}; if(ok){ unlockCard("fi.pvbp"); addXP(10);} render(); },
+  deskStart:()=>{ UI.play.desk.stage="pick"; render(); },
+  deskPick:a=>{ const D=UI.play.desk, R=D.rounds[D.r]; R.choice=a.dataset.id; if(R.choice==="cash"){ settle(null); } else D.stage="est"; render(); },
+  deskEst:()=>{ const v=num($("#estIn").value); if(!isFinite(v)) return toast("Enter a percentage","For example −4.25"); settle(v); render(); },
+  deskNext:()=>{ const D=UI.play.desk; D.base=Math.max(0.0025,D.base+D.rounds[D.r].dy); D.r++; if(D.r>=5){ D.stage="end"; if(D.V>1e7 && !S.d[7].play){ S.d[7].play=true; addXP(100); toast("Play complete","You beat the desk. +100 XP"); } } else D.stage="pick"; render(); },
+  deskNew:()=>{ UI.play.desk=newDesk(); UI.play.desk.stage="pick"; render(); },
+  testStart:()=>{ UI.test=newRun(shuffle(QUESTIONS.filter(q=>q.topic===7)).map(q=>q.id),"test"); render(); },
+  qpick:a=>{ const r=activeRun(); if(!r||r.revealed) return; r.pick=a.dataset.k; render(); },
+  qlock:()=>{ const r=activeRun(); if(!r||!r.pick) return; lockAnswer(r); },
+  qnext:()=>{ const r=activeRun(); r.i++; r.pick=null; r.revealed=false; if(r.i>=r.qs.length) finishRun(r); render(); window.scrollTo(0,0); },
+  advance:()=>{ S.session++; toast("New day","Session "+S.session+". Some weak spots may now be due."); render(); },
+  examStart:a=>{ UI.exam={...newRun(examPlan(+a.dataset.n),"exam"), left:90}; render(); examTick(); },
+  drill:a=>{ calcState().drill=+a.dataset.i; refreshCalc(); },
+  drillKeys:()=>{ const C=calcState(); C.show=!C.show; refreshCalc(); },
+  key:a=>calcKey(a.dataset.k),
+  save:()=>openSave(),
+  closeModal:(a,e)=>{ if(e.target.closest("[data-stop]") && !e.target.closest(".btn")) return; $("#modalRoot").innerHTML=""; },
+  copyCode:()=>{ const t=$("#expCode"); const done=()=>{$("#copyMsg").textContent="Copied";}; try{ navigator.clipboard.writeText(t.value).then(done,()=>{t.select();$("#copyMsg").textContent="Selected. Press Ctrl/⌘+C";}); }catch(e){ t.select(); $("#copyMsg").textContent="Selected. Press Ctrl/⌘+C"; } },
+  doImport:()=>{ try{ importCode($("#impCode").value); render(); openSave({t:"Loaded. Session "+S.session+"."}); }catch(e){ openSave({t:"That code didn't load. Paste the full text starting with WSQ1.", bad:true}); } },
+};
+function settle(est){
+  const D=UI.play.desk, R=D.rounds[D.r], st=deskStats(D.base), pos=st.find(s=>s.id===R.choice);
+  let actual=0, durOnly=0, full=0;
+  if(pos.id!=="cash"){ const P1=bond(pos.c,pos.y+R.dy,pos.n,pos.f).P; actual=(P1/pos.P-1)*100; durOnly=-pos.mod*R.dy*100; full=(-pos.mod*R.dy+0.5*pos.conv*R.dy*R.dy)*100; }
+  const pnl=D.V*actual/100; D.V+=pnl;
+  let ok=false;
+  if(est!=null){
+    ok = Math.abs(est-full)<=0.15 || Math.abs(est-durOnly)<=0.15;
+    if(ok){ D.ok++; addXP(15); unlockCard("fi.durest"); }
+    if(Math.abs(est-full)<=0.15 && Math.abs(full-durOnly)>0.30) unlockCard("fi.conv");
+  }
+  R.est=est; R.res={actual,durOnly,full,pnl,ok}; D.stage="res";
+}
+document.addEventListener("click",e=>{
+  const a=e.target.closest("[data-act]"); if(!a) return;
+  if(a.dataset.act==="closeModal"){ ACT.closeModal(a,e); return; }
+  e.stopPropagation(); const f=ACT[a.dataset.act]; if(f) f(a,e);
+});
+document.addEventListener("input",e=>{
+  const el=e.target;
+  if(el.dataset.inp==="lab"){ const k=el.dataset.k, v=+el.value; UI.lab[k]= k==="n"? v : v/100; $("#slv-"+k).textContent=fmt(v,k==="n"?0:2)+(k==="n"?" yrs":"%"); updateLab(); }
+  if(el.dataset.inp==="conf"){ const r=activeRun(); if(r){ r.conf=+el.value; $("#confLbl").textContent=r.conf+"% · "+confLabel(r.conf); } }
+});
+document.addEventListener("keydown",e=>{
+  if(e.key!=="Enter") return; const id=e.target.id;
+  const map={boothIn:"boothQuote",b1:"brief1",b2:"brief2",estIn:"deskEst"}; if(map[id]) ACT[map[id]]();
+});
+window.addEventListener("resize",()=>{ if(UI.view==="hub") drawSky(); });
+
+// boot (keeps state across live updates of this page)
+function start(data){ if(data && data.S && data.S.v===1) S=data.S; render(); }
+try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
+window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
+</script>
