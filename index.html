@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Wall Street Quest</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -33,7 +38,7 @@ button{font:inherit;color:inherit}
 .bull{color:var(--bull)}.bear{color:var(--bear)}
 
 /* status bar */
-.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(10,14,19,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--wire)}
+.bar{position:fixed;left:0;right:0;top:0;padding-top:env(safe-area-inset-top,0px);z-index:30;background:rgba(10,14,19,.94);backdrop-filter:blur(6px);border-bottom:1px solid var(--wire)}
 .bar-in{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px}
 .brand{font-family:var(--display);font-weight:900;font-size:22px;letter-spacing:.04em;text-transform:uppercase;background:none;border:0;cursor:pointer;padding:0;line-height:1}
 .brand b{color:var(--amber)}
@@ -197,12 +202,62 @@ textarea{width:100%;min-height:120px;background:var(--ink);color:var(--paper);bo
 .timer.low{color:var(--bear)}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 @media (max-width:560px){.nav{margin-left:0}.stats{gap:4px 12px}.xpbar{width:70px}}
+[hidden]{display:none!important}
+@media (max-width:640px){.bar-in{padding-block:8px;gap:6px 12px}.brand{font-size:19px}.stats .st-opt{display:none}.nav{flex-wrap:nowrap;overflow-x:auto;width:100%;padding-bottom:2px;scrollbar-width:none}.nav .btn{white-space:nowrap}}
+body{margin:0}
+/* 3D city */
+#world{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;touch-action:none;outline:none;background:var(--ink)}
+#room{position:fixed;inset:0;z-index:20;overflow-y:auto;-webkit-overflow-scrolling:touch;background:var(--ink);padding-top:var(--hudH,64px)}
+.room-top{max-width:1200px;margin:0 auto;padding-inline:16px;padding-block:16px 0}
+#hud3d{position:fixed;inset:0;z-index:10;pointer-events:none}
+#hud3d>*{pointer-events:auto}
+#mini{position:absolute;right:16px;top:calc(var(--hudH,64px) + 12px);width:150px;height:150px;border:1px solid var(--wire);background:rgba(10,14,19,.78)}
+#prompt{position:absolute;left:50%;bottom:calc(26px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:rgba(17,24,33,.95);border:1px solid var(--amber);padding:10px 12px 10px 16px;display:flex;gap:14px;align-items:center;width:max-content;max-width:calc(100vw - 32px)}
+#prompt .pt{font-family:var(--display);font-weight:800;text-transform:uppercase;font-size:22px;line-height:1}
+#prompt .ps{font-size:12.5px;color:var(--dim);margin-top:3px}
+#joy{position:absolute;left:20px;bottom:calc(110px + env(safe-area-inset-bottom,0px));width:120px;height:120px;border-radius:50%;border:1px solid var(--wire);background:rgba(17,24,33,.55);touch-action:none}
+#joy i{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px 0 0 -25px;border-radius:50%;background:var(--amber-soft);border:1px solid var(--amber)}
+@media (pointer:fine){#joy,.help-touch{display:none}}
+@media not all and (pointer:fine){.help-fine{display:none}}
+#help{position:absolute;left:16px;top:calc(var(--hudH,64px) + 12px);max-width:min(330px,calc(100vw - 200px));background:rgba(17,24,33,.94);border:1px solid var(--wire);padding:14px;display:grid;gap:8px;font-size:13.5px}
+@media (max-width:560px){#help{max-width:calc(100vw - 32px);top:calc(var(--hudH,64px) + 174px)}#mini{width:120px;height:120px}}
+#help ul{margin:0;padding-left:18px}
+#levelBanner{position:fixed;left:50%;top:38%;z-index:45;transform:translate(-50%,-50%);text-align:center;pointer-events:none;opacity:0;width:min(640px,calc(100vw - 32px))}
+#levelBanner.show{animation:rise 3.6s ease-out forwards}
+.lv-num{font-family:var(--display);font-weight:900;font-size:clamp(70px,16vw,160px);color:var(--amber);line-height:.85;text-shadow:0 0 34px rgba(255,176,32,.55)}
+.lv-name{font-family:var(--display);font-weight:800;font-size:clamp(24px,5vw,38px);text-transform:uppercase;text-shadow:0 2px 12px #000}
+.lv-unlock{font-family:var(--mono);font-size:13px;margin-top:8px;background:rgba(10,14,19,.85);display:inline-block;padding:4px 10px;border:1px solid var(--wire)}
+@keyframes rise{0%{opacity:0;transform:translate(-50%,-35%) scale(.92)}12%{opacity:1;transform:translate(-50%,-50%) scale(1)}82%{opacity:1}100%{opacity:0;transform:translate(-50%,-56%)}}
+.lvchip{font-family:var(--display);font-weight:900;font-size:19px;color:var(--amber-ink);background:var(--amber);padding:3px 8px 2px;line-height:1;letter-spacing:.03em}
+.levels{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:1px;background:var(--wire);border:1px solid var(--wire)}
+.levels div{background:var(--deck);padding:10px;font-size:12.5px}
+.levels div.on{background:linear-gradient(180deg,var(--amber-soft),transparent),var(--deck)}
+.levels b{font-family:var(--display);font-size:18px;text-transform:uppercase;display:block}
 </style>
-
+</head>
+<body>
+<canvas id="world" aria-label="3D city: walk your character between the districts"></canvas>
 <header class="bar"><div class="bar-in" id="bar"></div></header>
-<main class="shell" id="main"></main>
+<div id="hud3d" hidden>
+  <canvas id="mini" width="300" height="300" aria-hidden="true"></canvas>
+  <div id="help" hidden>
+    <span class="eyebrow">How to move</span>
+    <ul class="help-fine"><li><b>WASD</b> or arrow keys to walk, <b>Shift</b> to run</li><li>Drag the scene to turn the camera</li><li>Click a building to walk there and go in</li><li><b>E</b> to enter when a prompt appears</li><li>Walk into an amber orb for a pop quiz</li></ul>
+    <ul class="help-touch"><li>Joystick to walk, drag the scene to turn</li><li>Tap a building to walk there and go in</li><li>Walk into an amber orb for a pop quiz</li></ul>
+    <div class="row"><button class="btn sm primary" data-act="helpClose">Got it</button></div>
+  </div>
+  <div id="prompt" hidden><div><div class="pt"></div><div class="ps"></div></div><button class="btn primary" data-act="interact">Enter · E</button></div>
+  <div id="joy" aria-label="Movement joystick"><i></i></div>
+</div>
+<section id="room" hidden>
+  <div class="room-top" id="roomTop"><button class="btn sm" data-act="go" data-v="world">← Back to the street</button></div>
+  <main class="shell" id="main"></main>
+</section>
+<div id="levelBanner" aria-live="polite"></div>
+<div id="orbRoot"></div>
 <div id="modalRoot"></div>
 <div id="toasts" aria-live="polite"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <script>
 /* =====================================================================
@@ -225,7 +280,7 @@ const DISTRICTS = [
 ];
 const BUILT = [7];
 
-const RANKS = [[0,"Intern"],[150,"Analyst I"],[400,"Analyst II"],[800,"Associate"],[1300,"Senior Associate"],[2000,"Vice President"],[3000,"Director"],[4200,"Managing Director"],[6000,"Charterholder"]];
+const LEVELS = [[0,"Intern"],[100,"Analyst I"],[250,"Analyst II"],[450,"Associate"],[700,"Senior Associate"],[1000,"Vice President"],[1400,"Director"],[1900,"Executive Director"],[2500,"Managing Director"],[3200,"Charterholder"]];
 
 // ---------- weak-spot tags (LOS-level) ----------
 const TAGS = {
@@ -383,7 +438,7 @@ function freshState(){
     d:{7:{learn:false, step:0, booth:false, play:false, testBest:null, tests:0}}};
 }
 let S = freshState();
-const UI = {view:"hub", tab:"learn", lab:{c:.05, y:.06, n:10, f:2}, test:null, play:null, exam:null, review:null, calc:null};
+const UI = {view:"world", orb:null, tab:"learn", lab:{c:.05, y:.06, n:10, f:2}, test:null, play:null, exam:null, review:null, calc:null};
 
 // ---------- utilities ----------
 const $ = s => document.querySelector(s);
@@ -396,7 +451,7 @@ const pick = a => a[Math.floor(Math.random()*a.length)];
 const num = s => parseFloat(String(s).replace(/[−–]/g,"-").replace(/[%,$\s]/g,""));
 function gauss(){ let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
 
-function rankOf(xp){ let r=RANKS[0], next=null; for(let i=0;i<RANKS.length;i++){ if(xp>=RANKS[i][0]){ r=RANKS[i]; next=RANKS[i+1]||null; } } return {name:r[1], floor:r[0], next}; }
+function rankOf(xp){ let i=0; LEVELS.forEach((r,k)=>{ if(xp>=r[0]) i=k; }); return {lvl:i+1, name:LEVELS[i][1], floor:LEVELS[i][0], next:LEVELS[i+1]||null}; }
 function calib(){
   const L=S.log; if(!L.length) return null;
   const brier=L.reduce((s,a)=>s+Math.pow(a.c-(a.ok?1:0),2),0)/L.length;
@@ -407,10 +462,16 @@ function toast(title, body){
   const t=document.createElement("div"); t.className="toast"; t.innerHTML=`<b>${title}</b><div>${body||""}</div>`;
   $("#toasts").appendChild(t); setTimeout(()=>t.remove(), 4200);
 }
-function addXP(n, why){
-  if(n<=0) return; const before=rankOf(S.xp).name; S.xp+=Math.round(n); const after=rankOf(S.xp).name;
-  if(after!==before) toast("Promoted: "+after, "The elevator doors open on a higher floor.");
+function addXP(n){
+  if(n<=0) return; const b=rankOf(S.xp).lvl; S.xp+=Math.round(n); const a=rankOf(S.xp).lvl;
+  if(a>b) levelUp(a);
   renderBar();
+}
+function levelUp(lv){
+  const L=LEVELS[lv-1], el=$("#levelBanner");
+  el.innerHTML=`<div class="lv-num">Level ${lv}</div><div class="lv-name">${L[1]}</div><div class="lv-unlock">Unlocked: ${LOOKS[lv-1].unlock}</div>${lv===3?'<div class="lv-unlock">The Exam Hall doors are open</div>':""}`;
+  el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
+  if(W.ok){ W.player.apply(lookFor(lv)); W.pendingBurst=true; }
 }
 function unlockCard(id){
   if(S.cards.includes(id)) return false;
@@ -450,22 +511,25 @@ function tvm(target, R){
    HEADER
    ===================================================================== */
 function renderBar(){
-  const r=rankOf(S.xp), cb=calib();
+  const r=rankOf(S.xp), cb=calib(), inWorld=UI.view==="world";
   const prog = r.next? Math.min(100,100*(S.xp-r.floor)/(r.next[0]-r.floor)) : 100;
-  const nav=[["hub","City map"],["cards","Formula cards"],["weak","Weak spots"],["calc","BA II Plus"],["exam","Exam mode"]];
+  const nav=[["cards","Cards"],["weak","Weak spots"],["calc","BA II Plus"],["exam","Exam"],["levels","Levels"],["list","Directory"]];
   $("#bar").innerHTML = `
-    <button class="brand" data-act="go" data-v="hub">Wall Street <b>Quest</b></button>
+    <button class="brand" data-act="go" data-v="world">Wall Street <b>Quest</b></button>
     <div class="stats">
-      <span><b>${r.name}</b></span>
+      <span class="lvchip">LV ${r.lvl}</span><span><b>${r.name}</b></span>
       <span>XP <b>${S.xp}</b>${r.next?` / ${r.next[0]}`:""}<span class="xpbar"><i style="width:${prog}%"></i></span></span>
-      <span>Streak <b>${S.streak}</b></span>
-      <span>Session <b>${S.session}</b></span>
-      <span>Calibration <b>${cb?cb.score:"—"}</b></span>
+      <span class="st-opt">Streak <b>${S.streak}</b></span>
+      <span class="st-opt">Session <b>${S.session}</b></span>
+      <span class="st-opt">Calibration <b>${cb?cb.score:"—"}</b></span>
     </div>
     <nav class="nav">
+      ${W.ok && !inWorld?`<button class="btn sm" data-act="go" data-v="world">Street</button>`:""}
       ${nav.map(([v,l])=>`<button class="btn sm ${UI.view===v?"on":""}" data-act="go" data-v="${v}">${l}</button>`).join("")}
       <button class="btn sm primary" data-act="save">Save / load</button>
     </nav>`;
+  document.documentElement.style.setProperty("--hudH", $(".bar").offsetHeight+"px");
+  if(typeof updateWorldSigns==="function") updateWorldSigns();
 }
 
 /* =====================================================================
@@ -588,7 +652,7 @@ function viewDistrict(){
   const tab=(k,l,ok)=>`<button class="tab ${UI.tab===k?"on":""}" data-act="tab" data-t="${k}">${l}${ok?`<span class="tick">✓</span>`:""}</button>`;
   return `
   <section class="dhead">
-    <div class="row"><button class="btn sm ghost" data-act="go" data-v="hub">← City map</button><span class="eyebrow">District 07 · Fixed Income · 11–14% of the exam</span></div>
+    <div class="row"><span class="eyebrow">District 07 · Fixed Income · 11–14% of the exam</span></div>
     <h2>Bond <span class="amber">Bridge</span></h2>
     <p class="narr">Fog off the harbour. Below the bridge, a trillion dollars of promises trade on one question: what is a fixed cash flow worth when nothing else stays fixed?</p>
   </section>
@@ -851,7 +915,7 @@ function qHTML(q, run, feedback){
       <div class="verdict ${last.ok?"bull":"bear"}">${last.ok?"Correct":"Wrong"} <span class="mono dim" style="font-size:14px;text-transform:none">${last.xp?"+"+last.xp+" XP":"0 XP"} · confidence ${Math.round(last.c*100)}%</span></div>
       ${!last.ok && last.c>=.8?`<p class="bear">Confident and wrong. That's the expensive kind; this tag is now on your weak-spot list.</p>`:""}
       ${q.keys?`<div class="keys"><span class="eyebrow">BA II Plus</span>${q.keys.map(k=>`<kbd>${k}</kbd>`).join("")}</div>`:""}
-      <div class="row"><button class="btn primary" data-act="qnext">${run.i<run.qs.length-1?"Next question":"See results"}</button></div></div>` : ""}
+      <div class="row"><button class="btn primary" data-act="qnext">${run.mode==="orb"?"Back to the street":run.i<run.qs.length-1?"Next question":"See results"}</button></div></div>` : ""}
   </div>`;
 }
 function recordAnswer(q, pickK, conf, mode){
@@ -888,7 +952,7 @@ function runSummary(run, title){
     <div><div class="big amber">+${R.reduce((s,r)=>s+r.xp,0)}</div><span class="dim mono">XP</span></div></div>
     ${missed.length?`<div><b>Tagged for review:</b> ${missed.map(t=>`<span class="chip bear">${TAGS[t].label}</span>`).join(" ")}</div>`:`<p class="bull">Clean sheet. No new weak spots.</p>`}
     ${run.mode!=="test"? reviewList(run):""}
-    <div class="row">${run.mode==="test"?`<button class="btn primary" data-act="testStart">Retake test</button>`:""}<button class="btn ${run.mode==="test"?"":"primary"}" data-act="go" data-v="hub">Back to the city</button>${missed.length?`<button class="btn" data-act="go" data-v="weak">See weak spots</button>`:""}</div></div>`;
+    <div class="row">${run.mode==="test"?`<button class="btn primary" data-act="testStart">Retake test</button>`:""}<button class="btn ${run.mode==="test"?"":"primary"}" data-act="go" data-v="hub">Back to the street</button>${missed.length?`<button class="btn" data-act="go" data-v="weak">See weak spots</button>`:""}</div></div>`;
 }
 function reviewList(run){
   return `<details><summary class="btn sm" style="display:inline-block">Review every answer</summary><div class="stack" style="margin-top:12px">${run.results.map((r,k)=>{const q=QUESTIONS.find(x=>x.id===r.q);
@@ -900,6 +964,12 @@ function reviewList(run){
 /* =====================================================================
    FORMULA CARDS · WEAK SPOTS · REVIEW BOSS
    ===================================================================== */
+function viewLevels(){
+  const r=rankOf(S.xp);
+  return `<div class="stack"><span class="eyebrow">Career ladder · Level ${r.lvl} of 10</span><h2>Your <span class="amber">Levels</span></h2>
+  <p class="lede">Every level changes how your analyst looks on the street. XP comes from Learn, Play, tests, pop-quiz orbs, calculator drills and beating the Margin Clerk. The Exam Hall opens at Level 3.</p>
+  <div class="levels">${LEVELS.map((L,i)=>`<div class="${i+1<=r.lvl?"on":""}"><span class="eyebrow">Level ${i+1} · ${L[0]} XP</span><b>${L[1]}</b><span class="${i+1<=r.lvl?"":"dim"}">${LOOKS[i].unlock}</span></div>`).join("")}</div></div>`;
+}
 function viewCards(){
   return `<div class="stack"><span class="eyebrow">Binder</span><h2>Formula <span class="amber">Cards</span></h2>
   <p class="lede">Cards can't be read into your binder. They unlock only when you use the formula under pressure in a mini-game.</p>
@@ -1050,7 +1120,7 @@ function examTick(){
 /* =====================================================================
    ANSWER FLOW
    ===================================================================== */
-function activeRun(){ return UI.view==="exam"?UI.exam : UI.view==="review"?UI.review : UI.test; }
+function activeRun(){ if(UI.orb) return UI.orb; return UI.view==="exam"?UI.exam : UI.view==="review"?UI.review : UI.test; }
 function lockAnswer(run, timeout){
   const q=QUESTIONS.find(x=>x.id===run.qs[run.i]);
   const r=recordAnswer(q, run.pick, run.conf, run.mode); r.pick=run.pick; run.results.push(r);
@@ -1092,19 +1162,29 @@ function openSave(msg){
    ROUTER + EVENTS
    ===================================================================== */
 function render(){
+  if(UI.view==="world" && !W.ok) UI.view="list";
   renderBar();
-  const v=UI.view, m=$("#main");
-  m.innerHTML = v==="hub"?viewHub() : v==="district"?viewDistrict() : v==="cards"?viewCards() : v==="weak"?viewWeak() : v==="review"?viewReview() : v==="calc"?viewCalc() : viewExam();
-  if(v==="hub") drawSky();
-  if(v==="district" && UI.tab==="learn") updateLab();
+  const v=UI.view, inWorld=v==="world";
+  $("#room").hidden=inWorld; $("#hud3d").hidden=!inWorld; $("#roomTop").hidden=!W.ok;
+  $("#help").hidden=!!S.help;
+  if(!inWorld){
+    const m=$("#main");
+    m.innerHTML = v==="list"?viewHub() : v==="district"?viewDistrict() : v==="cards"?viewCards() : v==="weak"?viewWeak() : v==="review"?viewReview() : v==="calc"?viewCalc() : v==="levels"?viewLevels() : viewExam();
+    if(v==="list") drawSky();
+    if(v==="district" && UI.tab==="learn") updateLab();
+  } else { W.keys.clear(); }
+  renderOrb();
 }
+function toTop(){ const r=$("#room"); if(r) r.scrollTop=0; }
 const ACT = {
-  go:a=>{ const v=a.dataset.v; UI.view=v;
+  go:a=>{ let v=a.dataset.v; if(v==="hub") v="world"; if(v==="world" && !W.ok) v="list";
+    if(v==="exam" && rankOf(S.xp).lvl<3){ toast("The Exam Hall opens at Level 3", "You're Level "+rankOf(S.xp).lvl+". Bond Bridge Learn, Play and Test will get you there."); return; }
+    UI.view=v;
     if(v==="review" && UI.review && UI.review.i>=UI.review.qs.length) UI.review=null;
     if(v==="exam" && UI.exam && UI.exam.i>=UI.exam.qs.length) UI.exam=null;
-    render(); window.scrollTo(0,0);
+    render(); toTop();
     if(v==="exam" && UI.exam) examTick(); },
-  open:a=>{ UI.view="district"; UI.tab=S.d[7].learn?(S.d[7].play?"test":"play"):"learn"; render(); window.scrollTo(0,0); },
+  open:a=>{ UI.view="district"; UI.tab=S.d[7].learn?(S.d[7].play?"test":"play"):"learn"; render(); toTop(); },
   tab:a=>{ UI.view="district"; UI.tab=a.dataset.t; render(); },
   chap:a=>{ const d=S.d[7]; d.step=Math.max(0,Math.min(CHAPTERS.length-1,d.step+(+a.dataset.dir))); render(); },
   learnDone:()=>{ const d=S.d[7]; if(!d.learn){ d.learn=true; addXP(50); toast("Learn complete","Bond Bridge · +50 XP"); } UI.tab="play"; render(); },
@@ -1124,7 +1204,11 @@ const ACT = {
   testStart:()=>{ UI.test=newRun(shuffle(QUESTIONS.filter(q=>q.topic===7)).map(q=>q.id),"test"); render(); },
   qpick:a=>{ const r=activeRun(); if(!r||r.revealed) return; r.pick=a.dataset.k; render(); },
   qlock:()=>{ const r=activeRun(); if(!r||!r.pick) return; lockAnswer(r); },
-  qnext:()=>{ const r=activeRun(); r.i++; r.pick=null; r.revealed=false; if(r.i>=r.qs.length) finishRun(r); render(); window.scrollTo(0,0); },
+  qnext:()=>{ const r=activeRun(); if(r.mode==="orb"){ const o=r.orbRef; o.mesh.visible=false; o.halo.visible=false; o.respawn=W.t+40; UI.orb=null; render(); return; }
+    r.i++; r.pick=null; r.revealed=false; if(r.i>=r.qs.length) finishRun(r); render(); toTop(); },
+  orbSkip:()=>{ const o=UI.orb.orbRef; o.cool=W.t+6; UI.orb=null; render(); },
+  interact:()=>{ if(W.near) W.near.act(); },
+  helpClose:()=>{ S.help=true; render(); },
   advance:()=>{ S.session++; toast("New day","Session "+S.session+". Some weak spots may now be due."); render(); },
   examStart:a=>{ UI.exam={...newRun(examPlan(+a.dataset.n),"exam"), left:90}; render(); examTick(); },
   drill:a=>{ calcState().drill=+a.dataset.i; refreshCalc(); },
@@ -1133,7 +1217,7 @@ const ACT = {
   save:()=>openSave(),
   closeModal:(a,e)=>{ if(e.target.closest("[data-stop]") && !e.target.closest(".btn")) return; $("#modalRoot").innerHTML=""; },
   copyCode:()=>{ const t=$("#expCode"); const done=()=>{$("#copyMsg").textContent="Copied";}; try{ navigator.clipboard.writeText(t.value).then(done,()=>{t.select();$("#copyMsg").textContent="Selected. Press Ctrl/⌘+C";}); }catch(e){ t.select(); $("#copyMsg").textContent="Selected. Press Ctrl/⌘+C"; } },
-  doImport:()=>{ try{ importCode($("#impCode").value); render(); openSave({t:"Loaded. Session "+S.session+"."}); }catch(e){ openSave({t:"That code didn't load. Paste the full text starting with WSQ1.", bad:true}); } },
+  doImport:()=>{ try{ importCode($("#impCode").value); if(W.ok) W.player.apply(lookFor(rankOf(S.xp).lvl)); render(); openSave({t:"Loaded. Session "+S.session+"."}); }catch(e){ openSave({t:"That code didn't load. Paste the full text starting with WSQ1.", bad:true}); } },
 };
 function settle(est){
   const D=UI.play.desk, R=D.rounds[D.r], st=deskStats(D.base), pos=st.find(s=>s.id===R.choice);
@@ -1162,10 +1246,409 @@ document.addEventListener("keydown",e=>{
   if(e.key!=="Enter") return; const id=e.target.id;
   const map={boothIn:"boothQuote",b1:"brief1",b2:"brief2",estIn:"deskEst"}; if(map[id]) ACT[map[id]]();
 });
-window.addEventListener("resize",()=>{ if(UI.view==="hub") drawSky(); });
+window.addEventListener("resize",()=>{ if(UI.view==="list") drawSky(); renderBar(); });
+
+/* =====================================================================
+   3D CITY — walk the districts (three.js r128)
+   ===================================================================== */
+const W = {ok:false, keys:new Set(), joy:{x:0,y:0}, yaw:0, target:null, autoAct:null, tTime:0, near:null,
+  targets:[], colliders:[], clickables:[], orbs:[], fx:[], spin:[], t:0, last:0, ph:0, pendingBurst:false};
+const R_DIST=36, R_KIOSK=11, R_ORB=22, R_WORLD=80;
+const LOOKS = [
+  {torso:0x59636f, arms:0x59636f, legs:0x2b3139, badge:true, tie:false, glasses:false, pocket:false, caseCol:0x4a3524, watch:false, halo:false, unlock:"Grey hoodie, visitor lanyard and a borrowed briefcase"},
+  {torso:0xdde6ee, arms:0xdde6ee, unlock:"A crisp white shirt"},
+  {tie:true, badge:false, unlock:"An amber tie, and a real staff pass"},
+  {torso:0x1f2f4d, arms:0x1f2f4d, legs:0x1c2840, unlock:"Navy blazer and matching trousers"},
+  {glasses:true, unlock:"Reading glasses, for the footnotes"},
+  {torso:0x33383f, arms:0x33383f, legs:0x2b2f35, pocket:true, unlock:"Charcoal suit with an amber pocket square"},
+  {caseCol:0xffb020, unlock:"The amber briefcase"},
+  {torso:0x121418, arms:0x121418, legs:0x121418, unlock:"Black three-piece suit"},
+  {watch:true, unlock:"A gold watch. Time is money; now you can see both"},
+  {halo:true, unlock:"The Charterholder's glow"},
+];
+function lookFor(lv){ return Object.assign({}, ...LOOKS.slice(0, Math.max(1,lv))); }
+const angOf = id => -Math.PI/2 + (id-7)*(2*Math.PI/10);
+const M3 = (c,o) => new THREE.MeshStandardMaterial(Object.assign({color:c, roughness:.75, metalness:.08}, o||{}));
+const G3 = (c,i) => new THREE.MeshStandardMaterial({color:0x2a1c00, emissive:c, emissiveIntensity:i==null?1:i, roughness:.5});
+function mesh(geo,mat,x,y,z){ const m=new THREE.Mesh(geo,mat); m.position.set(x||0,y||0,z||0); m.castShadow=true; m.receiveShadow=true; return m; }
+const bx = (w,h,d,mat,x,y,z) => mesh(new THREE.BoxGeometry(w,h,d),mat,x,y,z);
+const cy3 = (rt,rb,h,s,mat,x,y,z,open) => mesh(new THREE.CylinderGeometry(rt,rb,h,s,1,!!open),mat,x,y,z);
+
+function label(title, sub, color, w){
+  const c=document.createElement("canvas"); c.width=1024; c.height=256; const g=c.getContext("2d");
+  let fs=120; const face=s=>`900 ${s}px "Big Shoulders Display", Impact, sans-serif`; g.font=face(fs);
+  while(g.measureText(title).width>990 && fs>40){ fs-=6; g.font=face(fs); }
+  g.textAlign="center"; g.textBaseline="middle"; g.shadowColor="rgba(0,0,0,.85)"; g.shadowBlur=14;
+  g.fillStyle=color; g.fillText(title, 512, sub?96:128);
+  if(sub){ g.font='600 46px "JetBrains Mono", monospace'; g.fillStyle="#a5b4c4"; g.fillText(sub,512,204); }
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c), transparent:true, depthWrite:false}));
+  const ww=w||12; s.scale.set(ww, ww/4, 1); return s;
+}
+function windowTexture(){
+  const c=document.createElement("canvas"); c.width=64; c.height=128; const g=c.getContext("2d");
+  g.fillStyle="#000"; g.fillRect(0,0,64,128);
+  for(let y=4;y<128;y+=8) for(let x=4;x<64;x+=8){ const r=Math.random(); if(r>.7){ g.globalAlpha=.35+Math.random()*.65; g.fillStyle=r>.96?"#ffb020":"#c7a874"; g.fillRect(x,y,4,4); } }
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.magFilter=THREE.NearestFilter; return t;
+}
+
+// ---------- the player (and the Margin Clerk) ----------
+function makeAgent(look){
+  const g=new THREE.Group(), P={g};
+  const mk=(geo,col)=>{ const m=new THREE.Mesh(geo,M3(col)); m.castShadow=true; return m; };
+  P.hip=new THREE.Group(); P.hip.position.y=1.05; g.add(P.hip);
+  const legGeo=new THREE.BoxGeometry(.3,1.05,.32); legGeo.translate(0,-.52,0);
+  P.legL=mk(legGeo,look.legs); P.legL.position.x=-.19; P.legR=mk(legGeo,look.legs); P.legR.position.x=.19; P.hip.add(P.legL,P.legR);
+  P.torso=mk(new THREE.BoxGeometry(.82,1.05,.46),look.torso); P.torso.position.y=1.58; g.add(P.torso);
+  const armGeo=new THREE.BoxGeometry(.22,.95,.26); armGeo.translate(0,-.45,0);
+  P.armL=mk(armGeo,look.arms); P.armL.position.set(-.53,2.05,0); P.armR=mk(armGeo,look.arms); P.armR.position.set(.53,2.05,0); g.add(P.armL,P.armR);
+  P.head=mk(new THREE.SphereGeometry(.3,16,12),0xd9a77f); P.head.position.y=2.42; g.add(P.head);
+  P.hair=mk(new THREE.SphereGeometry(.32,16,8,0,Math.PI*2,0,Math.PI/2),0x1b1410); P.hair.position.set(0,2.47,-.03); P.hair.rotation.x=-.25; g.add(P.hair);
+  const add=(geo,mat,x,y,z,parent)=>{ const m=new THREE.Mesh(geo,mat); m.position.set(x,y,z); (parent||g).add(m); return m; };
+  P.tie=add(new THREE.BoxGeometry(.13,.62,.03),G3(0xffb020,.35),0,1.74,.245);
+  P.badge=add(new THREE.BoxGeometry(.18,.24,.03),G3(0xffb020,.6),0,1.42,.245);
+  P.glasses=add(new THREE.BoxGeometry(.46,.08,.05),M3(0x0b0d10),0,2.46,.29);
+  P.pocket=add(new THREE.BoxGeometry(.14,.1,.03),G3(0xffb020,.5),-.22,1.88,.245);
+  P.case=mk(new THREE.BoxGeometry(.12,.42,.58),look.caseCol); P.case.position.set(0,-1.02,0); P.armR.add(P.case);
+  P.watch=add(new THREE.TorusGeometry(.13,.035,6,12),G3(0xffd36a,.9),0,-.78,0,P.armL); P.watch.rotation.x=Math.PI/2;
+  P.halo=add(new THREE.TorusGeometry(.42,.05,8,32),G3(0xffb020,1.6),0,2.98,0); P.halo.rotation.x=Math.PI/2;
+  P.apply=lk=>{
+    P.torso.material.color.setHex(lk.torso); P.armL.material.color.setHex(lk.arms); P.armR.material.color.setHex(lk.arms);
+    P.legL.material.color.setHex(lk.legs); P.legR.material.color.setHex(lk.legs); P.case.material.color.setHex(lk.caseCol);
+    if(lk.caseCol===0xffb020){ P.case.material.emissive.setHex(0x553a00); }
+    P.tie.visible=!!lk.tie; P.badge.visible=!!lk.badge; P.glasses.visible=!!lk.glasses; P.pocket.visible=!!lk.pocket; P.watch.visible=!!lk.watch; P.halo.visible=!!lk.halo;
+  };
+  P.apply(look); return P;
+}
+
+// ---------- district architecture ----------
+function buildDistrict(d, live){
+  const g=new THREE.Group();
+  const base=M3(live?0x2d3a4a:0x1a222c), dark=M3(live?0x1e2833:0x131920), stone=M3(live?0xc4ccd6:0x4b5562);
+  const trim = live? G3(0xffb020,.9) : M3(0x3a4654);
+  let h=8, front=3, door=true, cols=[[0,0,5]];
+  switch(d.id){
+    case 1: { // Compliance Court: a courthouse
+      g.add(bx(11,1,8,dark,0,.5,0), bx(9,4.5,6,base,0,3.25,-.6));
+      for(let i=0;i<6;i++) g.add(cy3(.33,.38,4.5,10,stone,-3.75+i*1.5,3.25,3));
+      const tri=new THREE.Shape(); tri.moveTo(-5.2,0); tri.lineTo(5.2,0); tri.lineTo(0,2.2); tri.lineTo(-5.2,0);
+      const pg=mesh(new THREE.ExtrudeGeometry(tri,{depth:7.4,bevelEnabled:false}),base,0,5.9,-4); g.add(pg, bx(10.6,.4,7.6,trim,0,5.7,-.3));
+      h=8.4; front=4; break; }
+    case 2: { // The Data Lab: a bar chart you can walk around
+      [4,7,5,9,6].forEach((hh,i)=>{ g.add(bx(1.7,hh,4,base,-4+i*2,hh/2,0), bx(1.7,.25,4,trim,-4+i*2,hh+.12,0)); });
+      h=9.5; front=2; break; }
+    case 3: { // Central Bank War Room: a domed bank
+      g.add(cy3(4.2,4.4,5,28,base,0,2.5,0));
+      g.add(mesh(new THREE.SphereGeometry(4.2,28,14,0,Math.PI*2,0,Math.PI/2),stone,0,5,0));
+      const r=mesh(new THREE.TorusGeometry(4.25,.16,8,40),trim,0,5,0); r.rotation.x=Math.PI/2; g.add(r, cy3(.1,.1,3,6,trim,0,10.5,0));
+      h=12; front=4.4; break; }
+    case 4: { // Forensic Accountant: tower with a magnifying glass
+      g.add(bx(5,14,5,base,0,7,0));
+      const ring=mesh(new THREE.TorusGeometry(2,.32,10,32),trim,0,9.4,2.8); g.add(ring);
+      const glass=mesh(new THREE.CylinderGeometry(1.9,1.9,.08,32),M3(0x8fb3c9,{transparent:true,opacity:.3}),0,9.4,2.8); glass.rotation.x=Math.PI/2; g.add(glass);
+      const hd=bx(.45,2.6,.45,trim,1.75,7.1,2.8); hd.rotation.z=.75; g.add(hd);
+      h=14.5; front=2.5; break; }
+    case 5: { // CFO's Desk: a glass tower
+      const tex=windowTexture(); tex.repeat.set(2,4);
+      g.add(bx(6,18,6,M3(live?0x34506c:0x1b2735,{metalness:.55,roughness:.3,emissive:0xffffff,emissiveMap:tex,emissiveIntensity:live?.5:.15}),0,9,0), bx(6.5,.6,6.5,trim,0,18.3,0));
+      h=19.5; front=3; break; }
+    case 6: { // Pitch Arena: a stadium
+      g.add(mesh(new THREE.CylinderGeometry(5.2,6,4,36,1,true),M3(live?0x2d3a4a:0x1a222c,{side:THREE.DoubleSide}),0,2,0));
+      const f=mesh(new THREE.CircleGeometry(5.1,36),M3(live?0x1f3a2c:0x16211b),0,.05,0); f.rotation.x=-Math.PI/2; g.add(f);
+      const r=mesh(new THREE.TorusGeometry(5.6,.14,8,48),trim,0,4,0); r.rotation.x=Math.PI/2; g.add(r);
+      h=5.5; front=6; break; }
+    case 7: { // Bond Bridge: a suspension bridge over a channel
+      const water=mesh(new THREE.PlaneGeometry(7,26),M3(0x0b2133,{emissive:0x06263d,emissiveIntensity:.6,roughness:.2,metalness:.4}),0,.04,0); water.rotation.x=-Math.PI/2; g.add(water);
+      g.add(bx(18,.6,3.2,base,0,3.2,0), bx(18,.45,.12,trim,0,3.75,1.55), bx(18,.45,.12,trim,0,3.75,-1.55));
+      for(const x of [-5.5,5.5]){ for(const z of [-1.5,1.5]) g.add(bx(.7,12,.7,dark,x,6,z)); g.add(bx(.8,.8,3.8,trim,x,11.7,0)); }
+      for(const s of [-1,1]){ const rp=bx(6.2,.6,3.2,base,s*11.6,1.6,0); rp.rotation.z=-s*.55; g.add(rp); }
+      const cableMat=new THREE.LineBasicMaterial({color:live?0xffb020:0x56616d});
+      for(const x0 of [-5.5,5.5]) for(const z of [-1.55,1.55]) for(let k=1;k<=4;k++) for(const dir of [-1,1]){
+        const pts=[new THREE.Vector3(x0,11.4,z), new THREE.Vector3(x0+dir*k*1.25,3.55,z)];
+        g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),cableMat));
+      }
+      g.add(bx(.5,4.4,.5,trim,-2.4,2.2,5), bx(.5,4.4,.5,trim,2.4,2.2,5), bx(5.4,.5,.5,trim,0,4.6,5));
+      h=12.5; front=5; door=false; cols=[[-5.5,0,1.6],[5.5,0,1.6],[-11,0,1.8],[11,0,1.8]]; break; }
+    case 8: { // Options Casino: a neon pyramid
+      const py=mesh(new THREE.ConeGeometry(5.5,9,4),base,0,4.5,0); py.rotation.y=Math.PI/4; g.add(py);
+      const e=new THREE.LineSegments(new THREE.EdgesGeometry(py.geometry),new THREE.LineBasicMaterial({color:live?0xffb020:0x56616d})); e.position.copy(py.position); e.rotation.copy(py.rotation); g.add(e);
+      h=10; front=3.9; break; }
+    case 9: { // The Vault
+      g.add(bx(8,6,6,base,0,3,0));
+      const dr=mesh(new THREE.CylinderGeometry(2.6,2.6,.5,40),M3(live?0x9aa5b1:0x4a5562,{metalness:.8,roughness:.3}),0,3,3.2); dr.rotation.x=Math.PI/2; g.add(dr);
+      for(let i=0;i<3;i++){ const sp=bx(4.4,.25,.2,trim,0,3,3.5); sp.rotation.z=i*Math.PI/3; g.add(sp); }
+      h=6.5; front=3.4; door=false; break; }
+    case 10: { // Fund Manager HQ: a twisting tower
+      for(let i=0;i<8;i++){ const fl=bx(5.5,1.9,5.5,i%2?base:dark,0,1+i*2,0); fl.rotation.y=i*.16; g.add(fl); }
+      g.add(cy3(.12,.12,3,6,trim,0,17.5,0));
+      h=17; front=2.8; break; }
+  }
+  if(door) g.add(bx(1.8,2.8,.15, live?G3(0xffb020,1.2):M3(0x28313c), 0,1.4,front+.08));
+  return {g, h, front, cols};
+}
+
+function buildKiosk(kind){
+  const g=new THREE.Group(), base=M3(0x2d3a4a), dark=M3(0x1e2833), trim=G3(0xffb020,.9);
+  let h=4, extra={};
+  if(kind==="cards"){ g.add(bx(2.4,2.6,2.4,base,0,1.3,0), bx(3,.3,3,trim,0,2.75,0));
+    const card=mesh(new THREE.PlaneGeometry(1,1.4),new THREE.MeshStandardMaterial({color:0xffb020,emissive:0xffb020,emissiveIntensity:.9,side:THREE.DoubleSide}),0,3.9,0); g.add(card); W.spin.push(card); h=4.8; }
+  if(kind==="calc"){ g.add(bx(1.5,3.2,.9,dark,0,1.6,0), bx(1.15,.6,.05,G3(0xb8c2a6,.55),0,2.65,.47));
+    for(let r=0;r<3;r++) for(let c=0;c<3;c++) g.add(bx(.25,.18,.05,M3(0xe7e9ec),-.35+c*.35,1.9-r*.3,.47)); h=4; }
+  if(kind==="exam"){ g.add(bx(.7,5,.7,base,-2.4,2.5,0), bx(.7,5,.7,base,2.4,2.5,0), bx(5.6,.9,.9,trim,0,5.3,0)); h=6.2; }
+  if(kind==="board"){ g.add(bx(.25,3.6,.25,dark,-2.1,1.8,-.1), bx(.25,3.6,.25,dark,2.1,1.8,-.1));
+    const c=document.createElement("canvas"); c.width=512; c.height=288; W.boardCtx=c.getContext("2d"); W.boardTex=new THREE.CanvasTexture(c);
+    g.add(bx(4.6,2.7,.2,dark,0,3.1,-.1)); g.add(mesh(new THREE.PlaneGeometry(4.4,2.5),new THREE.MeshBasicMaterial({map:W.boardTex}),0,3.1,.02)); h=5; }
+  if(kind==="save"){ g.add(bx(2.6,2.4,2,base,0,1.2,0), bx(3,.3,2.4,trim,0,2.55,0), bx(1.2,1.6,.1,G3(0xffb020,.6),0,1,1.02)); h=4; }
+  if(kind==="clerk"){
+    const npc=makeAgent({torso:0x26292f, arms:0x26292f, legs:0x1a1c20, tie:true, badge:false, glasses:true, pocket:false, caseCol:0x6b1f1f, watch:false, halo:false});
+    g.add(npc.g); extra.npc=npc;
+    const ring=mesh(new THREE.RingGeometry(1,1.25,40),new THREE.MeshStandardMaterial({color:0xff6363,emissive:0xff6363,emissiveIntensity:1,side:THREE.DoubleSide}),0,.05,0); ring.rotation.x=-Math.PI/2; g.add(ring); extra.ring=ring;
+    h=3.4; }
+  return {g,h,extra};
+}
+
+// ---------- world assembly ----------
+function buildCity(){
+  const sc=W.scene;
+  const ground=new THREE.Mesh(new THREE.PlaneGeometry(600,600),M3(0x0c1218,{roughness:1})); ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; sc.add(ground); W.ground=ground;
+  const flat=(geo,mat,y)=>{ const m=new THREE.Mesh(geo,mat); m.rotation.x=-Math.PI/2; m.position.y=y; m.receiveShadow=true; sc.add(m); return m; };
+  flat(new THREE.CircleGeometry(16,72),M3(0x141c25,{roughness:.9}),.02);
+  flat(new THREE.RingGeometry(15.5,16,96),G3(0xffb020,.7),.03);
+  flat(new THREE.RingGeometry(3.5,3.75,64),G3(0xffb020,.45),.03);
+  const centre=label("WALL STREET QUEST","CFA LEVEL I · 10 DISTRICTS","#ffb020",10); centre.position.set(0,.6,0); centre.material.depthTest=true;
+
+  // roads with dashed amber lines and lamps
+  const roadMat=M3(0x10171f,{roughness:1}), dash=G3(0xffb020,.5), pole=M3(0x2a333e), bulb=G3(0xffd9a0,1.4);
+  DISTRICTS.forEach(d=>{
+    const a=angOf(d.id), L=R_DIST-16-5, mid=16+L/2, rg=new THREE.Group(); rg.position.set(Math.cos(a)*mid,0,Math.sin(a)*mid); rg.lookAt(0,0,0); sc.add(rg);
+    const road=new THREE.Mesh(new THREE.PlaneGeometry(4.4,L),roadMat); road.rotation.x=-Math.PI/2; road.position.y=.025; road.receiveShadow=true; rg.add(road);
+    for(let z=-L/2+1;z<L/2;z+=2.4){ const ds=new THREE.Mesh(new THREE.PlaneGeometry(.18,1.1),dash); ds.rotation.x=-Math.PI/2; ds.position.set(0,.035,z); rg.add(ds); }
+    for(const x of [-2.9,2.9]) for(const z of [-L/2+2, L/2-2]){ rg.add(cy3(.08,.1,3.6,6,pole,x,1.8,z)); const b=mesh(new THREE.SphereGeometry(.22,10,8),bulb,x,3.7,z); b.castShadow=false; rg.add(b); }
+  });
+
+  // districts
+  DISTRICTS.forEach(d=>{
+    const live=BUILT.includes(d.id), a=angOf(d.id), B=buildDistrict(d,live);
+    B.g.position.set(Math.cos(a)*R_DIST,0,Math.sin(a)*R_DIST); B.g.lookAt(0,0,0); sc.add(B.g); B.g.updateMatrixWorld(true);
+    const tag=label(`${String(d.id).padStart(2,"0")} · ${d.name}`, live? `${d.topic.toUpperCase()} · OPEN` : `${d.topic.toUpperCase()} · COMING SOON`, live?"#ffb020":"#7d8a99", live?14:11);
+    tag.position.set(B.g.position.x*0.97, B.h+3.2, B.g.position.z*0.97); sc.add(tag);
+    B.cols.forEach(([x,z,r])=>{ const p=B.g.localToWorld(new THREE.Vector3(x,0,z)); W.colliders.push({x:p.x,z:p.z,r}); });
+    const ip=new THREE.Vector3(Math.cos(a)*(R_DIST-B.front-2.6),0,Math.sin(a)*(R_DIST-B.front-2.6));
+    const t={id:"d"+d.id, pos:ip, r:4.2, name:live?d.name:`${d.name}`, sub: live? `District ${String(d.id).padStart(2,"0")} · ${d.topic} · ${d.w[0]}–${d.w[1]}% of the exam` : `District ${String(d.id).padStart(2,"0")} · ${d.topic} · lights off, opening in a future build`,
+      btn: live?"Enter":"Look", act: live? ()=>ACT.open({dataset:{id:d.id}}) : ()=>toast(`${d.name} is dark`, `${d.topic} opens in a future build. Bond Bridge is open now.`)};
+    W.targets.push(t); B.g.traverse(o=>o.userData.tid=t.id); W.clickables.push(B.g);
+    if(live){ const L=new THREE.PointLight(0xffb020,1.6,26); L.position.set(Math.cos(a)*(R_DIST-6),6,Math.sin(a)*(R_DIST-6)); sc.add(L); }
+  });
+
+  // plaza kiosks
+  const kiosks=[
+    {kind:"cards", deg:-60,  name:"Binder Kiosk",     sub:"Your formula cards", act:()=>ACT.go({dataset:{v:"cards"}})},
+    {kind:"calc",  deg:-120, name:"BA II Plus Terminal", sub:"Calculator drills: TVM keystrokes", act:()=>ACT.go({dataset:{v:"calc"}})},
+    {kind:"exam",  deg:0,    name:"Exam Hall",        sub:"Timed mock, 90 seconds a question · Level 3+", act:()=>ACT.go({dataset:{v:"exam"}})},
+    {kind:"board", deg:180,  name:"Weak Spot Board",  sub:"Concepts you missed, on a spaced schedule", act:()=>ACT.go({dataset:{v:"weak"}})},
+    {kind:"clerk", deg:120,  name:"The Margin Clerk", sub:"Review Boss · fights you on your weak spots", btn:"Challenge", act:()=>{ if(dueTags().length) ACT.go({dataset:{v:"review"}}); else toast("The Margin Clerk yawns","Nothing is due this session. Close the day at the Weak Spot Board to move the calendar."); }},
+    {kind:"save",  deg:60,   name:"Records Office",   sub:"Save or load your progress code", btn:"Open", act:()=>openSave()},
+  ];
+  kiosks.forEach(k=>{
+    const a=k.deg*Math.PI/180, K=buildKiosk(k.kind); K.g.position.set(Math.cos(a)*R_KIOSK,0,Math.sin(a)*R_KIOSK); K.g.lookAt(0,0,0); sc.add(K.g);
+    const tag=label(k.name, null, "#dde4ec", 3.6); tag.position.set(K.g.position.x, K.h+1.1, K.g.position.z); sc.add(tag);
+    W.colliders.push({x:K.g.position.x, z:K.g.position.z, r:k.kind==="exam"?0.1:1.7});
+    if(k.kind==="exam"){ const p1=K.g.localToWorld(new THREE.Vector3(-2.4,0,0)), p2=K.g.localToWorld(new THREE.Vector3(2.4,0,0)); W.colliders.push({x:p1.x,z:p1.z,r:.6},{x:p2.x,z:p2.z,r:.6}); }
+    const ip=new THREE.Vector3(Math.cos(a)*(R_KIOSK-2.8),0,Math.sin(a)*(R_KIOSK-2.8));
+    const t={id:"k-"+k.kind, pos:ip, r:2.9, name:k.name, sub:k.sub, btn:k.btn||"Open", act:k.act};
+    W.targets.push(t); K.g.traverse(o=>o.userData.tid=t.id); W.clickables.push(K.g);
+    if(k.kind==="clerk"){ W.clerk=K.extra.npc; W.clerkG=K.g; W.clerkRing=K.extra.ring; W.clerkAlert=label("!", null, "#ff6363", 3); W.clerkAlert.position.set(K.g.position.x,4.6,K.g.position.z); sc.add(W.clerkAlert); }
+  });
+
+  // knowledge orbs (pop quizzes)
+  [0,2,4,6,8].forEach(k=>{
+    const a=-Math.PI/2+(k+.5)*(2*Math.PI/10);
+    const m=new THREE.Mesh(new THREE.IcosahedronGeometry(.75,0),new THREE.MeshStandardMaterial({color:0xffb020,emissive:0xffb020,emissiveIntensity:1.1,flatShading:true}));
+    m.position.set(Math.cos(a)*R_ORB,1.5,Math.sin(a)*R_ORB); sc.add(m);
+    const halo=new THREE.Mesh(new THREE.RingGeometry(.9,1.05,32),new THREE.MeshBasicMaterial({color:0xffb020,transparent:true,opacity:.5,side:THREE.DoubleSide})); halo.rotation.x=-Math.PI/2; halo.position.set(m.position.x,.05,m.position.z); sc.add(halo);
+    W.orbs.push({mesh:m, halo, base:m.position.clone(), respawn:0, cool:0});
+  });
+
+  // skyline beyond the districts
+  const tex=windowTexture();
+  for(let i=0;i<90;i++){
+    const a=Math.random()*Math.PI*2, r=60+Math.random()*80, w=4+Math.random()*7, d=4+Math.random()*7, hh=10+Math.random()*40;
+    const t=tex.clone(); t.needsUpdate=true; t.repeat.set(Math.max(1,Math.round(w/3)), Math.max(1,Math.round(hh/6)));
+    const b=bx(w,hh,d,M3(0x121921,{emissive:0xffffff,emissiveMap:t,emissiveIntensity:.55}),Math.cos(a)*r,hh/2,Math.sin(a)*r);
+    b.castShadow=false; sc.add(b);
+  }
+}
+
+function initWorld(){
+  if(W.ok) return true;
+  if(typeof THREE==="undefined") return false;
+  const cv=$("#world"); let renderer;
+  try{ renderer=new THREE.WebGLRenderer({canvas:cv, antialias:true, powerPreference:"high-performance"}); }catch(e){ return false; }
+  if(!renderer.getContext()) return false;
+  W.renderer=renderer; renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+  const sc=W.scene=new THREE.Scene(); sc.background=new THREE.Color(0x0a0e13); sc.fog=new THREE.FogExp2(0x0a0e13,0.0115);
+  W.cam=new THREE.PerspectiveCamera(55,1,.1,500);
+  sc.add(new THREE.HemisphereLight(0x8fa6c4,0x0a0e13,.6));
+  const moon=new THREE.DirectionalLight(0xc8d6ff,.75); moon.position.set(30,60,25); moon.castShadow=true; moon.shadow.mapSize.set(2048,2048);
+  Object.assign(moon.shadow.camera,{left:-55,right:55,top:55,bottom:-55,far:160}); sc.add(moon);
+  buildCity();
+  W.player=makeAgent(lookFor(rankOf(S.xp).lvl)); sc.add(W.player.g);
+  W.player.g.position.set(0,0,6); W.player.g.rotation.y=Math.PI;
+  W.cam.position.set(0,9,18);
+  const resize=()=>{ const w=window.innerWidth, h=window.innerHeight; renderer.setSize(w,h,false); W.cam.aspect=w/h; W.cam.updateProjectionMatrix(); };
+  resize(); window.addEventListener("resize",resize);
+  setupWorldInput(cv);
+  W.ok=true; requestAnimationFrame(loop);
+  return true;
+}
+
+// ---------- input ----------
+function worldActive(){ return W.ok && UI.view==="world" && !UI.orb && !$("#modalRoot").innerHTML; }
+function setupWorldInput(cv){
+  cv.addEventListener("pointerdown",e=>{ W.drag={x:e.clientX,y:e.clientY,moved:0}; try{cv.setPointerCapture(e.pointerId);}catch(_){} });
+  cv.addEventListener("pointermove",e=>{ if(!W.drag) return; const dx=e.clientX-W.drag.x, dy=e.clientY-W.drag.y; W.drag.moved+=Math.abs(dx)+Math.abs(dy); W.yaw-=dx*.006; W.drag.x=e.clientX; W.drag.y=e.clientY; });
+  cv.addEventListener("pointerup",e=>{ const d=W.drag; W.drag=null; if(d && d.moved<8 && worldActive()) clickWorld(e); });
+  cv.addEventListener("pointercancel",()=>{ W.drag=null; });
+  document.addEventListener("keydown",e=>{
+    const tag=(e.target.tagName||"").toLowerCase(); if(tag==="input"||tag==="textarea") return;
+    if(e.key==="Escape"){ if(!UI.orb && UI.view!=="world" && W.ok && !$("#modalRoot").innerHTML) ACT.go({dataset:{v:"world"}}); return; }
+    if(!worldActive()) return;
+    const k=e.key.toLowerCase();
+    if(k==="e"||k==="enter"){ if(W.near){ e.preventDefault(); W.near.act(); } return; }
+    if(["w","a","s","d","arrowup","arrowdown","arrowleft","arrowright","shift","q"].includes(k)){ W.keys.add(k); e.preventDefault(); }
+  });
+  document.addEventListener("keyup",e=>W.keys.delete(e.key.toLowerCase()));
+  window.addEventListener("blur",()=>W.keys.clear());
+  const joy=$("#joy"), knob=joy.querySelector("i"); let jid=null;
+  const mv=e=>{ const r=joy.getBoundingClientRect(); let x=(e.clientX-r.left-r.width/2)/(r.width/2), y=(e.clientY-r.top-r.height/2)/(r.height/2); const m=Math.hypot(x,y); if(m>1){x/=m;y/=m;} W.joy.x=x; W.joy.y=y; knob.style.transform=`translate(${x*36}px,${y*36}px)`; W.target=null; };
+  joy.addEventListener("pointerdown",e=>{ jid=e.pointerId; try{joy.setPointerCapture(jid);}catch(_){} mv(e); });
+  joy.addEventListener("pointermove",e=>{ if(e.pointerId===jid) mv(e); });
+  const end=e=>{ if(e.pointerId!==jid) return; jid=null; W.joy.x=W.joy.y=0; knob.style.transform=""; };
+  joy.addEventListener("pointerup",end); joy.addEventListener("pointercancel",end);
+}
+function clickWorld(e){
+  const r=W.renderer.domElement.getBoundingClientRect();
+  const v=new THREE.Vector2(((e.clientX-r.left)/r.width)*2-1, -((e.clientY-r.top)/r.height)*2+1);
+  const rc=new THREE.Raycaster(); rc.setFromCamera(v,W.cam);
+  const hits=rc.intersectObjects(W.clickables,true);
+  if(hits.length){ let o=hits[0].object; while(o && o.userData.tid==null) o=o.parent;
+    const t=o && W.targets.find(x=>x.id===o.userData.tid); if(t){ W.target=t.pos.clone(); W.autoAct=t; W.tTime=0; return; } }
+  const gh=rc.intersectObject(W.ground); if(gh.length){ W.target=gh[0].point.clone(); W.target.y=0; W.autoAct=null; W.tTime=0; }
+}
+
+// ---------- per-frame ----------
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt=Math.min(.05,(now-(W.last||now))/1000); W.last=now;
+  if(UI.view!=="world") return;
+  W.t+=dt; step(dt); W.renderer.render(W.scene,W.cam);
+}
+function step(dt){
+  const P=W.player, p=P.g.position, K=W.keys, active=worldActive();
+  let f=0,s=0;
+  if(active){ if(K.has("w")||K.has("arrowup")) f+=1; if(K.has("s")||K.has("arrowdown")) f-=1; if(K.has("a")||K.has("arrowleft")) s-=1; if(K.has("d")||K.has("arrowright")) s+=1; f-=W.joy.y; s+=W.joy.x; }
+  const cyw=Math.cos(W.yaw), syw=Math.sin(W.yaw);
+  let dx=-syw*f+cyw*s, dz=-cyw*f-syw*s, mag=Math.min(1,Math.hypot(dx,dz));
+  if(mag>.1){ W.target=null; }
+  else if(W.target && active){
+    W.tTime+=dt; const tx=W.target.x-p.x, tz=W.target.z-p.z, d=Math.hypot(tx,tz);
+    if(d<.5 || W.tTime>9){ const t=W.autoAct; W.target=null; W.autoAct=null; mag=0; if(t && d<1.5) t.act(); }
+    else { dx=tx/d; dz=tz/d; mag=1; }
+  }
+  const speed=(K.has("shift")?14:8.5)*mag;
+  if(mag>.05){
+    const n=Math.hypot(dx,dz)||1; p.x+=dx/n*speed*dt; p.z+=dz/n*speed*dt;
+    for(const c of W.colliders){ const ex=p.x-c.x, ez=p.z-c.z, d=Math.hypot(ex,ez), m=c.r+.55; if(d<m && d>1e-4){ p.x=c.x+ex/d*m; p.z=c.z+ez/d*m; } }
+    const rr=Math.hypot(p.x,p.z); if(rr>R_WORLD){ p.x*=R_WORLD/rr; p.z*=R_WORLD/rr; }
+    const want=Math.atan2(dx,dz); let diff=want-P.g.rotation.y; diff=Math.atan2(Math.sin(diff),Math.cos(diff)); P.g.rotation.y+=diff*Math.min(1,dt*12);
+    W.ph+=dt*speed*1.15;
+  }
+  const sw=mag>.05? Math.sin(W.ph):0, k=Math.min(1,dt*10);
+  P.legL.rotation.x+=(sw*.7-P.legL.rotation.x)*k; P.legR.rotation.x+=(-sw*.7-P.legR.rotation.x)*k;
+  P.armL.rotation.x+=(-sw*.6-P.armL.rotation.x)*k; P.armR.rotation.x+=(sw*.3-P.armR.rotation.x)*k;
+  P.g.position.y = mag>.05? Math.abs(Math.sin(W.ph))*.06 : 0;
+  if(P.halo.visible) P.halo.rotation.z+=dt*1.5;
+
+  // camera: behind and above, orbiting with yaw
+  const portrait=W.cam.aspect<1, D=portrait?19:15, H=portrait?13:10.5, want=new THREE.Vector3(p.x+syw*D, H, p.z+cyw*D);
+  W.cam.position.lerp(want, 1-Math.exp(-dt*6)); W.cam.lookAt(p.x-syw*4,1.4,p.z-cyw*4);
+
+  // spinning props, clerk watching you
+  W.spin.forEach(m=>m.rotation.y+=dt*1.6);
+  if(W.clerk){ const c=W.clerkG.position; const lp=W.clerkG.worldToLocal(p.clone()); W.clerk.g.rotation.y=Math.atan2(lp.x,lp.z); W.clerk.g.position.y=Math.sin(W.t*2)*.04; W.clerkAlert.position.y=4.6+Math.sin(W.t*3)*.15; }
+
+  // orbs
+  W.orbs.forEach(o=>{
+    if(!o.mesh.visible && W.t>o.respawn){ o.mesh.visible=true; o.halo.visible=true; }
+    if(!o.mesh.visible) return;
+    o.mesh.rotation.y+=dt*1.2; o.mesh.rotation.x+=dt*.6; o.mesh.position.y=o.base.y+Math.sin(W.t*2+o.base.x)*.25;
+    if(active && W.t>o.cool && Math.hypot(p.x-o.base.x,p.z-o.base.z)<1.5) openOrb(o);
+  });
+
+  // nearest interactable
+  let best=null, bd=1e9; for(const t of W.targets){ const d=Math.hypot(p.x-t.pos.x,p.z-t.pos.z); if(d<t.r && d<bd){ bd=d; best=t; } }
+  setNear(active?best:null);
+
+  // level-up burst
+  if(W.pendingBurst){ W.pendingBurst=false; burst(); }
+  for(let i=W.fx.length-1;i>=0;i--){ const q=W.fx[i]; q.life-=dt; q.v.y-=9*dt; q.m.position.addScaledVector(q.v,dt); q.m.rotation.x+=dt*5; const s=Math.max(.01,q.life/1.6); q.m.scale.setScalar(s); if(q.life<=0){ W.scene.remove(q.m); W.fx.splice(i,1); } }
+  drawMini();
+}
+function setNear(t){
+  if(W.near===t) return; W.near=t; const el=$("#prompt");
+  if(!t){ el.hidden=true; return; }
+  el.hidden=false; el.querySelector(".pt").textContent=t.name; el.querySelector(".ps").textContent=t.sub; el.querySelector("button").textContent=(t.btn||"Enter")+" · E";
+}
+function burst(){
+  const p=W.player.g.position, mat=G3(0xffb020,1.4);
+  for(let i=0;i<46;i++){ const m=new THREE.Mesh(new THREE.BoxGeometry(.16,.16,.16),mat); m.position.set(p.x,1.6,p.z); W.scene.add(m);
+    const a=Math.random()*Math.PI*2, sp=3+Math.random()*5; W.fx.push({m, life:1.6, v:new THREE.Vector3(Math.cos(a)*sp, 5+Math.random()*6, Math.sin(a)*sp)}); }
+}
+function drawMini(){
+  const c=$("#mini"); if(!c) return; const g=c.getContext("2d"), s=c.width, k=(s/2-8)/50;
+  g.clearRect(0,0,s,s); g.save(); g.translate(s/2,s/2); g.rotate(W.yaw);
+  const P=W.player.g.position; g.translate(-P.x*k,-P.z*k);
+  g.strokeStyle="rgba(255,176,32,.5)"; g.lineWidth=2; g.beginPath(); g.arc(0,0,16*k,0,Math.PI*2); g.stroke();
+  DISTRICTS.forEach(d=>{ const a=angOf(d.id), live=BUILT.includes(d.id); g.fillStyle=live?"#ffb020":"#3a4654"; g.fillRect(Math.cos(a)*R_DIST*k-6,Math.sin(a)*R_DIST*k-6,12,12); });
+  W.targets.filter(t=>t.id.startsWith("k-")).forEach(t=>{ g.fillStyle=t.id==="k-clerk"&&dueTags().length?"#ff6363":"#8494a6"; g.beginPath(); g.arc(t.pos.x*k,t.pos.z*k,4,0,Math.PI*2); g.fill(); });
+  W.orbs.forEach(o=>{ if(!o.mesh.visible) return; g.fillStyle="#ffd36a"; g.beginPath(); g.arc(o.base.x*k,o.base.z*k,3.5,0,Math.PI*2); g.fill(); });
+  g.translate(P.x*k,P.z*k); g.rotate(Math.PI-W.player.g.rotation.y);
+  g.fillStyle="#dde4ec"; g.beginPath(); g.moveTo(0,-9); g.lineTo(6,7); g.lineTo(-6,7); g.closePath(); g.fill();
+  g.restore();
+}
+function updateWorldSigns(){
+  if(!W.ok) return; const due=dueTags().length;
+  if(W.clerkRing){ W.clerkRing.material.color.setHex(due?0xff6363:0x3a4654); W.clerkRing.material.emissive.setHex(due?0xff6363:0x1a222c); }
+  if(W.clerkAlert) W.clerkAlert.visible=due>0;
+  const g=W.boardCtx; if(!g) return; const tracked=Object.values(S.tags).filter(t=>!t.mastered).length;
+  g.fillStyle="#111821"; g.fillRect(0,0,512,288); g.strokeStyle="#ffb020"; g.lineWidth=6; g.strokeRect(3,3,506,282);
+  g.textAlign="center"; g.fillStyle="#ffb020"; g.font='900 64px "Big Shoulders Display", Impact, sans-serif'; g.fillText("WEAK SPOTS",256,78);
+  g.fillStyle=due?"#ff6363":"#3fd99a"; g.font='900 124px "Big Shoulders Display", Impact, sans-serif'; g.fillText(String(due),256,204);
+  g.fillStyle="#a5b4c4"; g.font='600 26px "JetBrains Mono", monospace'; g.fillText(due?"due this session":(tracked?`${tracked} tracked · none due`:"none yet · keep it that way"),256,256);
+  W.boardTex.needsUpdate=true;
+}
+function openOrb(o){
+  const pool=QUESTIONS.filter(q=>BUILT.includes(q.topic)); const q=pick(pool);
+  W.keys.clear(); W.target=null; UI.orb={...newRun([q.id],"orb"), orbRef:o}; renderOrb();
+}
+function renderOrb(){
+  const root=$("#orbRoot"); if(!UI.orb){ root.innerHTML=""; return; }
+  const run=UI.orb, q=QUESTIONS.find(x=>x.id===run.qs[0]);
+  root.innerHTML=`<div class="scrim"><div class="modal" style="max-width:720px" role="dialog" aria-label="Pop quiz">
+    <div class="row" style="justify-content:space-between"><span class="eyebrow">Knowledge orb · pop quiz</span>${run.revealed?"":`<button class="btn sm ghost" data-act="orbSkip">Not now</button>`}</div>
+    ${qHTML(q,run,true)}</div></div>`;
+}
 
 // boot (keeps state across live updates of this page)
-function start(data){ if(data && data.S && data.S.v===1) S=data.S; render(); }
+function start(data){
+  if(data && data.S && data.S.v===1) S={...freshState(), ...data.S};
+  const go=()=>{ const ok=initWorld(); UI.view = ok? "world" : "list"; render(); };
+  const fonts = document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve();
+  Promise.race([fonts, new Promise(r=>setTimeout(r,1500))]).then(go, go);
+}
 try{ window.claude?.hot?.snapshot?.(()=>({S})); }catch(e){}
 window.claude?.hot?.ready ? window.claude.hot.ready(start) : start(window.claude?.hot?.data ?? {});
 </script>
+
+</body>
+</html>
